@@ -1,40 +1,43 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { graphql, useStaticQuery } from "gatsby"
+import { useQuery } from '@apollo/client';
+import gql from 'graphql-tag';
 import Layout from "../components/layout"
+
+
+// This query is executed at build time by Gatsby.
+const GATSBY_QUERY = graphql`
+  query {
+    bff {
+      books {
+        title
+        author
+      }
+      time
+    }
+  }
+`
+
+// This query is executed at run time by Apollo.
+const APOLLO_QUERY = gql`
+  {
+    books {
+      title
+    },
+    time
+  }
+`
 
 const IndexPage = () => {
   // ----------------------
   // BUILD TIME DATA FETCHING USING GRAPHQL
   // ----------------------
-  const staticData = useStaticQuery(graphql`
-    query {
-      bff {
-        books {
-          title
-          author
-        }
-        time
-      }
-    }
-  `).bff
+  const staticData = useStaticQuery(GATSBY_QUERY).bff
 
   // ----------------------
   // RUNTIME DATA FETCHING
   // ----------------------
-  const [runtimeData, setRuntimeData] = useState(0)
-  useEffect(() => {
-    // get data from bff
-    fetch(`http://localhost:4000/graphql?query={
-      books {
-        title
-      },
-      time
-    }`)
-      .then(response => response.json()) // parse JSON from request
-      .then(resultData => {
-        setRuntimeData(resultData.data)
-      })
-  }, [])
+  const { loading, error, data: runtimeData } = useQuery(APOLLO_QUERY);
 
   return (
     <Layout>
@@ -49,7 +52,9 @@ const IndexPage = () => {
       <h2>Runtime</h2>
       <p>{JSON.stringify(runtimeData)}</p>
       <p>
-        {parseInt(runtimeData.time) && new Date(parseInt(runtimeData.time)).toISOString()}
+        {loading && <span>Loading...</span>}
+        {error && <span style={{color: "red"}}>Error: ${error.message}</span>}
+        {runtimeData && parseInt(runtimeData.time) && new Date(parseInt(runtimeData.time)).toISOString()}
       </p>
     </Layout>
   )
