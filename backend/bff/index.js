@@ -1,4 +1,9 @@
 const { ApolloServer, gql } = require("apollo-server")
+const grpc = require('grpc')
+const protoLoader = require('@grpc/proto-loader')
+
+const PROTO_PATH = __dirname + '/../protos/helloworld/helloworld.proto';
+
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -44,14 +49,34 @@ const resolvers = {
     time: () => Date.now(),
   },
   Mutation: {
-    addBook: (_, { title, author }) => {
-      let book = { title, author }
+    addBook: async (_, { title, author }) => {
+      let result = await new Promise((resolve, reject) =>
+        client.sayHello({ name: author }, function (err, response) {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response)
+        })
+      )
+      console.log("gRPC result:", result)
+      let book = { title, author: result.message }
       books.push(book)
       console.log("addBook() called: books =", books)
       return book
     },
   },
 }
+
+// setup gRPC client
+const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+})
+const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
+const client = new hello_proto.Greeter('localhost:50051', grpc.credentials.createInsecure());
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.

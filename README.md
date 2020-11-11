@@ -10,6 +10,13 @@ $ cd backend/bff
 $ npm start
 ```
 
+### Start gRPC server
+
+```
+$ cd backend
+$ go run greeter_server/main.go
+```
+
 ### Start frontend server
 
 ```

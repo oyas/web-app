@@ -72,15 +72,18 @@ const IndexPage = () => {
         onSubmit={e => {
           e.preventDefault()
           addBook({ variables: { title: "Fox in Socks", author: input.value } })
+            .then((result) => {
+              console.log("addBook:", result)
+              refetch()
+            })
           input.value = ""
-          refetch()
         }}
       >
         <input
           ref={node => {
             input = node
           }}
-          placeholder="Dr. Seuss"
+          placeholder="Seuss"
         />
         <button type="submit">Add book</button>
       </form>
