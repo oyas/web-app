@@ -19,3 +19,9 @@ $ go run greeter_server/main.go
 $ cd bff
 $ npm start
 ```
+
+## build
+
+```
+$ make
+```
