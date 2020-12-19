@@ -3,8 +3,8 @@ module backend
 go 1.14
 
 require (
+	github.com/go-redis/redis/v8 v8.4.4
 	github.com/golang/protobuf v1.4.3
-	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 	golang.org/x/sys v0.0.0-20201109165425-215b40eba54c // indirect
 	golang.org/x/text v0.3.4 // indirect
 	google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a // indirect

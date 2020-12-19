@@ -21,9 +21,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
+	db "backend/greeter_server/database"
 	pb "backend/protos/helloworld"
 	"google.golang.org/grpc"
 )
@@ -40,10 +42,18 @@ type server struct {
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Printf("Received: %v", in.GetName())
-	return &pb.HelloReply{Message: "Dr. " + in.GetName()}, nil
+	no, err := db.Database.NextNumber(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return &pb.HelloReply{Message: fmt.Sprintf("[%v] Dr. %v", no, in.GetName())}, nil
 }
 
 func main() {
+	// init redis client
+	db.Database.Init()
+
+	// init grpc server
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
