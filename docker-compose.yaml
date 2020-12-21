@@ -1,8 +1,16 @@
 version: '3'
 services:
+  frontend:
+    build:
+      context: "frontend/web"
+      dockerfile: "Dockerfile"
+    ports:
+    - "8000:8000"
+    links:
+    - bff
   bff:
     build:
-      context: .
+      context: backend
       dockerfile: "Dockerfile.node"
     ports:
     - "4000:4000"
@@ -10,7 +18,7 @@ services:
     - greeter_server
   greeter_server:
     build:
-      context: .
+      context: backend
       dockerfile: "Dockerfile.go"
       args:
         SERVICE_NAME: "greeter_server"

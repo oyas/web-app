@@ -12,7 +12,7 @@ module.exports = {
       options: {
         typeName: `bff`,
         fieldName: `bff`,
-        url: `http://localhost:4000/graphql`,
+        url: `http://bff:4000/graphql`,
         headers: {},
       },
     },

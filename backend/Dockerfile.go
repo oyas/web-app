@@ -13,6 +13,6 @@ RUN CGO_ENABLED=0 go build -v -o /go/bin/main
 
 FROM scratch as app
 
-COPY --from=go-builder /go/bin/main /app/main
+COPY --from=builder /go/bin/main /app/main
 
 ENTRYPOINT ["/app/main"]
