@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	address  = "localhost:6379"
-	password = "" // no password set
+	address  = "redis:6379"  // hostname 'redis' is defined at docker-compose.yaml
+	password = ""  // no password set
 )
 
 type Redis struct {

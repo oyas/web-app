@@ -25,3 +25,9 @@ $ npm start
 ```
 $ make
 ```
+
+## build and run greeter\_server and redis
+
+```
+$ docker-compose up --build
+```
