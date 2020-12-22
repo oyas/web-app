@@ -28,9 +28,25 @@ jobs:
       - name: Build services
         run: docker-compose build
 
-      - name: Get root page
+      - name: Start services
         run: |
           docker-compose up -d
           sleep 10
-          curl -LI localhost:8000 -s --fail
-          docker-compose down
+
+      - name: Check status of services
+        run: |
+          ps=`docker-compose ps | sed '1,2d'`
+          all_count=`echo "$ps" | wc -l`
+          up_count=`echo "$ps" | grep '   Up' | wc -l`
+          if [[ $all_count != $up_count ]]; then
+	            docker-compose logs
+              echo ""
+	            echo "some services down (${up_count}/${all_count})"
+	            exit 1
+          fi
+
+      - name: Get root page
+        run: curl -LI localhost:8000 -s --fail
+
+      - name: Stop services
+        run: docker-compose down
