@@ -41,6 +41,8 @@ jobs:
           if [[ $all_count != $up_count ]]; then
               docker-compose logs
               echo ""
+              docker-compose ps
+              echo ""
               echo "some services down (${up_count}/${all_count})"
               exit 1
           fi
