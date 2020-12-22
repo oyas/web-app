@@ -32,5 +32,5 @@ jobs:
         run: |
           docker-compose up -d
           sleep 10
-          curl -LI localhost:8000 -o /dev/null -w '%{http_code}\n' -s --fall
+          curl -LI localhost:8000 -s --fail
           docker-compose down
