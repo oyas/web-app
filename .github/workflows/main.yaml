@@ -44,6 +44,7 @@ jobs:
               echo "some services down (${up_count}/${all_count})"
               exit 1
           fi
+          echo "All ok"
 
       - name: Get root page
         run: curl -LI localhost:8000 -s --fail
