@@ -66,7 +66,7 @@ const resolvers = {
       return book
     },
   },
-}
+}}
 
 // setup gRPC client
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
