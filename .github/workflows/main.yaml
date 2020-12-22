@@ -39,10 +39,10 @@ jobs:
           all_count=`echo "$ps" | wc -l`
           up_count=`echo "$ps" | grep '   Up' | wc -l`
           if [[ $all_count != $up_count ]]; then
-	            docker-compose logs
+              docker-compose logs
               echo ""
-	            echo "some services down (${up_count}/${all_count})"
-	            exit 1
+              echo "some services down (${up_count}/${all_count})"
+              exit 1
           fi
 
       - name: Get root page
