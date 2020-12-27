@@ -5,6 +5,9 @@
  */
 
 module.exports = {
+  siteMetadata: {
+    title: `Web-app`,
+  },
   /* Your site config here */
   plugins: [
     {
@@ -16,5 +19,7 @@ module.exports = {
         headers: {},
       },
     },
+    'gatsby-theme-material-ui',
+    'gatsby-plugin-emotion'
   ],
 }

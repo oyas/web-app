@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { graphql, useStaticQuery } from "gatsby"
 import { gql, useQuery, useMutation } from "@apollo/client"
 import Layout from "../components/layout"
+import { TextField, Button } from '@material-ui/core';
 
 // This query is executed at build time by Gatsby.
 const GATSBY_QUERY = graphql`
@@ -79,13 +80,13 @@ const IndexPage = () => {
           input.value = ""
         }}
       >
-        <input
-          ref={node => {
+        <TextField
+          inputRef={node => {
             input = node
           }}
           placeholder="Seuss"
         />
-        <button type="submit">Add book</button>
+        <Button variant="contained" color="primary" type="submit">Add book</Button>
       </form>
     </Layout>
   )
