@@ -49,7 +49,7 @@ jobs:
           echo "All ok"
 
       - name: Get root page
-        run: curl -LI localhost:8000 -s --fail
+        run: curl -LI localhost:8080 -s --fail
 
       - name: Stop services
         run: docker-compose down
