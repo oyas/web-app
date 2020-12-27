@@ -9,4 +9,4 @@ Web App test
 $ docker-compose up
 ```
 
-open http://localhost:8000/ in your browser
+open http://localhost:8080/ in your browser
