@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:14-alpine as develop
 
 RUN mkdir -p /app
 
@@ -10,7 +10,12 @@ RUN npm install
 # 本番用にコードを作成している場合
 # RUN npm install --only=production
 
-COPY . /app
-
 EXPOSE 8000
 CMD [ "npm", "start" ]
+
+
+FROM develop as production
+
+COPY . /app
+
+CMD [ "sh", "-c", "npm run build && npm run serve -- --port 8000" ]

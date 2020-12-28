@@ -15,7 +15,7 @@ module.exports = {
       options: {
         typeName: `bff`,
         fieldName: `bff`,
-        url: `http://bff:4000/graphql`,
+        url: `${process.env.API_URL_BFF}/graphql`,
         headers: {},
       },
     },

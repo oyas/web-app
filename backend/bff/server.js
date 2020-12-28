@@ -4,8 +4,6 @@ const protoLoader = require('@grpc/proto-loader')
 
 const PROTO_PATH = __dirname + '/../protos/helloworld/helloworld.proto';
 
-const GREETER_HOST_AND_PORT = 'greeter_server:50051'
-
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
@@ -77,7 +75,10 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   oneofs: true,
 })
 const hello_proto = grpc.loadPackageDefinition(packageDefinition).helloworld;
-const client = new hello_proto.Greeter(GREETER_HOST_AND_PORT, grpc.credentials.createInsecure());
+const client = new hello_proto.Greeter(
+  process.env.API_URL_GREETER,
+  grpc.credentials.createInsecure()
+);
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
