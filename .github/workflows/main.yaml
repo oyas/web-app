@@ -31,7 +31,7 @@ jobs:
       - name: Start services
         run: |
           docker-compose up -d
-          sleep 30
+          sleep 60
 
       - name: Check status of services
         run: |
