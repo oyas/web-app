@@ -35,21 +35,21 @@ jobs:
 
       - name: Check status of services
         run: |
+          docker-compose logs
+          echo ""
+          docker-compose ps
+          echo ""
           ps=`docker-compose ps | sed '1,2d'`
           all_count=`echo "$ps" | wc -l`
           up_count=`echo "$ps" | grep '   Up' | wc -l`
           if [[ $all_count != $up_count ]]; then
-              docker-compose logs
-              echo ""
-              docker-compose ps
-              echo ""
               echo "some services down (${up_count}/${all_count})"
               exit 1
           fi
           echo "All ok"
 
       - name: Get root page
-        run: curl -LI localhost:8080 -s --fail
+        run: curl -LI localhost:8080 --fail
 
       - name: Stop services
         run: docker-compose down
