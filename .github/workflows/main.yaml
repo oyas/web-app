@@ -31,7 +31,7 @@ jobs:
       - name: Start services
         run: |
           docker-compose up -d
-          sleep 10
+          sleep 30
 
       - name: Check status of services
         run: |
@@ -49,7 +49,7 @@ jobs:
           echo "All ok"
 
       - name: Get root page
-        run: curl -LI localhost:8080 --fail
+        run: curl -LI localhost:8080 --fail --max-time 10
 
       - name: Stop services
         run: docker-compose down
