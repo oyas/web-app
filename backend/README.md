@@ -3,9 +3,7 @@ backend
 
 ## compile .proto
 
-```
-$ bash build_proto.sh
-```
+[see](protos)
 
 ## run server
 
@@ -18,16 +16,4 @@ $ go run greeter_server/main.go
 ```
 $ cd bff
 $ npm start
-```
-
-## build
-
-```
-$ make
-```
-
-## build and run greeter\_server and redis
-
-```
-$ docker-compose up --build
 ```
