@@ -13,11 +13,11 @@ services:
     build:
       context: "frontend/web"
       dockerfile: "Dockerfile"
-      # target: develop
+      target: develop
     ports:
     - "8000:8000"
-    # volumes:
-    # - ./frontend/web:/app
+    volumes:
+    - ./frontend/web:/app
     links:
     - bff
     environment:

@@ -11,11 +11,22 @@ RUN npm install
 # RUN npm install --only=production
 
 EXPOSE 8000
-CMD [ "npm", "start" ]
+
+# run develop mode and delete generated files at the end.
+CMD sh -c ' \
+  trap " \
+    echo signal received! finishing...; \
+    kill \$(jobs -p); \
+    wait; \
+    npm run clean \
+  " SIGINT SIGQUIT SIGTERM; \
+  npm run develop & \
+  wait \
+'
 
 
 FROM develop as production
 
 COPY . /app
 
-CMD [ "sh", "-c", "npm run build && npm run serve -- --port 8000" ]
+CMD sh -c "npm run build && npm run serve -- --port 8000"
