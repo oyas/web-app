@@ -4,12 +4,6 @@ RUN mkdir -p /app
 
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm install
-# 本番用にコードを作成している場合
-# RUN npm install --only=production
-
 EXPOSE 8000
 
 # run develop mode and delete generated files at the end.
@@ -20,6 +14,7 @@ CMD sh -c ' \
     wait; \
     npm run clean \
   " SIGINT SIGQUIT SIGTERM; \
+  npm install && \
   npm run develop & \
   wait \
 '
@@ -28,5 +23,7 @@ CMD sh -c ' \
 FROM develop as production
 
 COPY . /app
+
+RUN npm install --only=production
 
 CMD sh -c "npm run build && npm run serve -- --port 8000"
