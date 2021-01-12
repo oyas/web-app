@@ -14,6 +14,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import Link from '@material-ui/core/Link';
 
 
 const Layout = ({ children }) => {
@@ -35,7 +36,9 @@ const Layout = ({ children }) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6">
-            {data.site.siteMetadata.title}
+            <Link href="/" color="inherit" style={{ textDecoration: 'none' }}>
+              {data.site.siteMetadata.title}
+            </Link>
           </Typography>
         </Toolbar>
       </AppBar>

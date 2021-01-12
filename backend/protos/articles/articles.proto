@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option go_package = "backend/protos/articles";
+
+package articles;
+
+service Articles {
+  rpc Get (GetRequest) returns (GetResponse) {}
+  rpc GetArticles (GetArticlesRequest) returns (GetArticlesResponse) {}
+  rpc Post (PostRequest) returns (PostResponse) {}
+}
+
+message Article {
+  string id = 1;
+  uint64 created = 2;
+  string userId = 3;
+  string digest = 4;
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message GetResponse {
+  Article article = 1;
+}
+
+message GetArticlesRequest {
+  uint64 time = 1;
+}
+
+message GetArticlesResponse {
+  repeated Article articles = 1;
+}
+
+message PostRequest {
+  string userId = 1;
+  string digest = 2;
+}
+
+message PostResponse {
+  Article article = 1;
+}
+

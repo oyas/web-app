@@ -22,7 +22,7 @@ services:
     - bff
     environment:
     - API_URL_BFF=http://bff:4000
-    - API_URL_BFF_RUNTIME=
+    - API_URL_BFF_RUNTIME=  # same host
   bff:
     build:
       context: backend
@@ -31,8 +31,10 @@ services:
     - "4000:4000"
     links:
     - greeter_server
+    - articles
     environment:
     - API_URL_GREETER=greeter_server:50051
+    - API_URL_ARTICLES=articles:50052
   greeter_server:
     build:
       context: backend
@@ -43,5 +45,17 @@ services:
     - "50051:50051"
     links:
     - redis
+  articles:
+    build:
+      context: backend
+      dockerfile: "Dockerfile.go"
+      args:
+        SERVICE_NAME: "articles"
+    ports:
+    - "50052:50052"
+    links:
+    - redis-articles
   redis:
+    image: "redis:alpine"
+  redis-articles:
     image: "redis:alpine"

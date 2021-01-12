@@ -11,9 +11,6 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Divider from '@material-ui/core/Divider';
-import Box from '@material-ui/core/Box';
-
 
 // This query is executed at build time by Gatsby.
 const GATSBY_QUERY = graphql`
@@ -31,18 +28,19 @@ const GATSBY_QUERY = graphql`
 // This query is executed at run time by Apollo.
 const APOLLO_QUERY = gql`
   {
-    articles(time: 0) {
-      id
-      digest
+    books {
+      title
+      author
     }
     time
   }
 `
 
-const POST_ARTICLE = gql`
-  mutation postArticle($userId: String!, $digest: String!) {
-    postArticle(userId: $userId, digest: $digest) {
-      id
+// This is mutation
+const ADD_BOOKS = gql`
+  mutation addBook($title: String!, $author: String!) {
+    addBook(title: $title, author: $author) {
+      title
     }
   }
 `
@@ -69,20 +67,22 @@ const IndexPage = () => {
   const { loading, error, data: runtimeData, refetch } = useQuery(APOLLO_QUERY)
 
   // Mutation
-  const [postArticle] = useMutation(POST_ARTICLE)
+  const [addBook] = useMutation(ADD_BOOKS)
 
   // Make timeline
   const classes = useStyles()
   const timeline = (
     <>
-      {runtimeData && runtimeData.articles.map(e => (
+      {runtimeData && runtimeData.books.map(e => (
         <Card className={classes.root}>
           <CardContent>
+            <Typography variant="h5" component="h2">
+              {e.title}
+            </Typography>
             <Typography className={classes.pos} color="textSecondary">
-              {e.id}
+              {e.author}
             </Typography>
             <Typography variant="body2" component="p">
-              {e.digest}
             </Typography>
           </CardContent>
         </Card>
@@ -108,12 +108,30 @@ const IndexPage = () => {
 
   return (
     <Layout>
+      <h1>Examples</h1>
+
+      <h2>Build Time</h2>
+      {rawDataView(staticData)}
+      <Typography>{new Date(parseInt(staticData.time)).toISOString()}</Typography>
+
+      <h2>Runtime</h2>
+      {rawDataView(runtimeData)}
+      <Typography>
+        {loading && <span>Loading...</span>}
+        {error && <span style={{ color: "red" }}>Error: ${error.message}</span>}
+        {runtimeData &&
+          parseInt(runtimeData.time) &&
+          new Date(parseInt(runtimeData.time)).toISOString()}
+      </Typography>
+      {timeline}
+
+      <h2>Mutation</h2>
       <form
         onSubmit={e => {
           e.preventDefault()
-          postArticle({ variables: { userId: "user0", digest: input.value } })
+          addBook({ variables: { title: "Fox in Socks", author: input.value } })
             .then((result) => {
-              console.log("postArticle:", result)
+              console.log("addBook:", result)
               refetch()
             })
           input.value = ""
@@ -123,33 +141,10 @@ const IndexPage = () => {
           inputRef={node => {
             input = node
           }}
-          variant="outlined"
-          fullWidth
-          multiline
+          variant="standard"
         />
-        <Button
-          className={classes.right}
-          variant="contained"
-          color="primary"
-          type="submit"
-          fullWidth
-        >
-          submit
-        </Button>
+        <Button color="primary" type="submit">Add book</Button>
       </form>
-
-      <Divider />
-
-      {timeline}
-
-      {rawDataView(runtimeData)}
-      <Typography>
-        {loading && <span>Loading...</span>}
-        {error && <span style={{ color: "red" }}>Error: ${error.message}</span>}
-        {runtimeData &&
-          parseInt(runtimeData.time) &&
-          new Date(parseInt(runtimeData.time)).toISOString()}
-      </Typography>
 
     </Layout>
   )
