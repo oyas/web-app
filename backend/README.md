@@ -8,7 +8,13 @@ backend
 ## run server
 
 ```
-$ go run greeter_server/main.go
+$ cd articles
+$ go run main.go
+```
+
+```
+$ cd greeter_server
+$ go run main.go
 ```
 
 ## run bff

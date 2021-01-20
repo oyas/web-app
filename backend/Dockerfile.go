@@ -4,7 +4,8 @@ ARG SERVICE_NAME="greeter_server"
 
 # RUN apk update && apk add git
 
-COPY . /go/src
+COPY ./protos /go/src/protos
+COPY ./${SERVICE_NAME} /go/src/${SERVICE_NAME}
 
 WORKDIR /go/src/${SERVICE_NAME}
 

@@ -5,8 +5,8 @@ import (
 	"log"
 	"strconv"
 
-	db "backend/articles/database"
-	pb "backend/protos/articles"
+	db "articles/database"
+	pb "protos/articles"
 
 	"google.golang.org/protobuf/proto"
 )

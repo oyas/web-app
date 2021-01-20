@@ -25,8 +25,8 @@ import (
 	"log"
 	"net"
 
-	db "backend/greeter_server/database"
-	pb "backend/protos/helloworld"
+	db "greeter_server/database"
+	pb "protos/helloworld"
 	"google.golang.org/grpc"
 )
 

@@ -10,7 +10,8 @@ RUN npm install
 # 本番用にコードを作成している場合
 # RUN npm install --only=production
 
-COPY . /app
+COPY ./protos /app/protos
+COPY ./bff /app/bff
 
 EXPOSE 4000
 CMD [ "npm", "start" ]

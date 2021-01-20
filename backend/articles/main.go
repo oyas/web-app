@@ -4,9 +4,9 @@ import (
 	"log"
 	"net"
 
-	db "backend/articles/database"
-	"backend/articles/service"
-	pb "backend/protos/articles"
+	db "articles/database"
+	"articles/service"
+	pb "protos/articles"
 	"google.golang.org/grpc"
 )
 
