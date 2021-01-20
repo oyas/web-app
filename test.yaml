@@ -1,0 +1,20 @@
+#
+# Usage
+#   $ docker-compose -f test.yaml build
+#
+version: '3.7'
+services:
+  greeter_server:
+    build:
+      context: backend
+      dockerfile: "Dockerfile.go"
+      target: test
+      args:
+        SERVICE_NAME: "greeter_server"
+  articles:
+    build:
+      context: backend
+      dockerfile: "Dockerfile.go"
+      target: test
+      args:
+        SERVICE_NAME: "articles"
