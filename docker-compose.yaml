@@ -39,6 +39,7 @@ services:
     build:
       context: backend
       dockerfile: "Dockerfile.go"
+      target: app
       args:
         SERVICE_NAME: "greeter_server"
     ports:
@@ -49,6 +50,7 @@ services:
     build:
       context: backend
       dockerfile: "Dockerfile.go"
+      target: app
       args:
         SERVICE_NAME: "articles"
     ports:
