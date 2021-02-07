@@ -2,7 +2,6 @@ const { ApolloServer, gql } = require("apollo-server")
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 
-const HELLO_PROTO_PATH = __dirname + '/../protos/helloworld/helloworld.proto';
 const ARTICLES_PROTO_PATH = __dirname + '/../protos/articles/articles.proto';
 
 // A schema is a collection of type definitions (hence "typeDefs")
@@ -71,16 +70,7 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (_, { title, author }) => {
-      let result = await new Promise((resolve, reject) =>
-        hello_client.sayHello({ name: author }, function (err, response) {
-          if (err) {
-            return reject(err)
-          }
-          resolve(response)
-        })
-      )
-      console.log("gRPC result:", result)
-      let book = { title, author: result.message }
+      let book = { title, author: author }
       books.push(book)
       console.log("addBook() called: books =", books)
       return book
@@ -101,19 +91,6 @@ const resolvers = {
 }
 
 // setup gRPC client
-const hello_package_definition = protoLoader.loadSync(HELLO_PROTO_PATH, {
-  keepCase: true,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-})
-const hello_proto = grpc.loadPackageDefinition(hello_package_definition).helloworld;
-const hello_client = new hello_proto.Greeter(
-  process.env.API_URL_GREETER,
-  grpc.credentials.createInsecure()
-);
-
 const articles_package_definition = protoLoader.loadSync(ARTICLES_PROTO_PATH, {
   keepCase: true,
   longs: String,

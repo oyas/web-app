@@ -33,7 +33,6 @@ services:
     - greeter_server
     - articles
     environment:
-    - API_URL_GREETER=greeter_server:50051
     - API_URL_ARTICLES=articles:50052
   greeter_server:
     build:
