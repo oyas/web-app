@@ -13,11 +13,12 @@ services:
     build:
       context: "frontend/web"
       dockerfile: "Dockerfile"
-      target: develop
+      # target: develop
+    image: oyas/web-app-frontend
     ports:
     - "8000:8000"
-    volumes:
-    - ./frontend/web:/app
+    # volumes:
+    # - ./frontend/web:/app
     links:
     - bff
     environment:
@@ -27,6 +28,7 @@ services:
     build:
       context: backend
       dockerfile: "Dockerfile.node"
+    image: oyas/web-app-bff
     ports:
     - "4000:4000"
     links:
@@ -52,6 +54,7 @@ services:
       target: app
       args:
         SERVICE_NAME: "articles"
+    image: oyas/web-app-articles
     ports:
     - "50052:50052"
     links:
