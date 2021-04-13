@@ -33,6 +33,8 @@ jobs:
         run: docker-compose build
 
       - name: Start services
+        env:
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker-compose up -d
           sleep 10
