@@ -14,7 +14,7 @@ services:
       context: "frontend/web"
       dockerfile: "Dockerfile"
       # target: develop
-    image: oyas/web-app-frontend
+    image: oyas/web-app-frontend:${IMAGE_TAG}
     ports:
     - "8000:8000"
     # volumes:
@@ -28,7 +28,7 @@ services:
     build:
       context: backend
       dockerfile: "Dockerfile.node"
-    image: oyas/web-app-bff
+    image: oyas/web-app-bff:${IMAGE_TAG}
     ports:
     - "4000:4000"
     links:
@@ -54,7 +54,7 @@ services:
       target: app
       args:
         SERVICE_NAME: "articles"
-    image: oyas/web-app-articles
+    image: oyas/web-app-articles:${IMAGE_TAG}
     ports:
     - "50052:50052"
     links:
