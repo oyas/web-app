@@ -55,7 +55,7 @@ jobs:
           echo "All ok"
 
       - name: Get root page
-        run: curl -LI localhost:8080 --fail -sS --retry 60 --retry-delay 2
+        run: curl -LI localhost:8080 --fail -sS --retry 300 --retry-delay 2
 
       - name: Stop services
         run: docker-compose down
