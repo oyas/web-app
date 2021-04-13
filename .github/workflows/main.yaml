@@ -19,6 +19,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    environment:
+      name: production
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -54,6 +56,13 @@ jobs:
       - name: Stop services
         run: docker-compose down
 
+      - name: push image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker login -u oyas -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          docker-compose push
+
   # second job
   test:
     runs-on: ubuntu-latest
@@ -63,3 +72,32 @@ jobs:
 
       - name: Test services
         run: docker-compose -f test.yaml build
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: imranismail/setup-kustomize@v1
+      with:
+        kustomize-version: "3.9.4"
+
+    - run: git clone https://${REPO_TOKEN}@github.com/oyas/web-app-infra.git
+      env:
+        REPO_TOKEN: ${{secrets.ACCESS_TOKEN_GITHUB}}
+
+    - run: |
+        cd web-app-infra/apps/articles/overlays/dev
+        kustomize edit set image oyas/web-app-articles:${GITHUB_SHA}
+    
+    - run: |
+        cd web-app-infra/apps/bff/overlays/dev/
+        kustomize edit set image oyas/web-app-bff:${GITHUB_SHA}
+    
+    - run: |
+        cd web-app-infra/apps/frontend/overlays/dev/
+        kustomize edit set image oyas/web-app-frontend:${GITHUB_SHA}
+
+    - run: git add .
+    - run: git commit -m "[GITHUB action] Set image tag to `${GITHUB_SHA}`"
+    - run: git push
