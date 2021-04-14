@@ -54,8 +54,8 @@ jobs:
           fi
           echo "All ok"
 
-      #- name: Get root page
-      #  run: curl -LI localhost:8080 --fail -sS --retry 60 --retry-delay 2
+      - name: Get root page
+        run: curl -LI localhost:8080 --fail -sS --retry 60 --retry-delay 2
 
       - name: The job has failed
         if: ${{ failure() }}
@@ -111,14 +111,19 @@ jobs:
         cd web-app-infra/apps/frontend/overlays/dev/
         kustomize edit set image oyas/web-app-frontend:${GITHUB_SHA}
 
-    - name: commit and push
+    - name: commit
       run: |
         cd web-app-infra
         git version
-        git remote -v
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action of web-app"
         git commit -m "[GITHUB action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
         git log -2
-        git push
+
+    - name: push
+      env:
+        REPO_TOKEN: ${{secrets.ACCESS_TOKEN_GITHUB}}
+      run: |
+        cd web-app-infra
+        git push https://${REPO_TOKEN}@github.com/oyas/web-app-infra.git
