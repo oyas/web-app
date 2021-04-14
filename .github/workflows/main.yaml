@@ -97,18 +97,24 @@ jobs:
       env:
         REPO_TOKEN: ${{secrets.ACCESS_TOKEN_GITHUB}}
 
-    - run: |
+    - name: update image web-app-articles
+      run: |
         cd web-app-infra/apps/articles/overlays/dev
         kustomize edit set image oyas/web-app-articles:${GITHUB_SHA}
     
-    - run: |
+    - name: update image web-app-bff
+      run: |
         cd web-app-infra/apps/bff/overlays/dev/
         kustomize edit set image oyas/web-app-bff:${GITHUB_SHA}
     
-    - run: |
+    - name: update image web-app-frontend
+      run: |
         cd web-app-infra/apps/frontend/overlays/dev/
         kustomize edit set image oyas/web-app-frontend:${GITHUB_SHA}
 
-    - run: git add .
-    - run: git commit -m "[GITHUB action] Set image tag to `${GITHUB_SHA}`"
-    - run: git push
+    - name: commit and push
+      run: |
+        cd web-app-infra
+        git add .
+        git commit -m "[GITHUB action] Set image tag to `${GITHUB_SHA}`" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
+        git push
