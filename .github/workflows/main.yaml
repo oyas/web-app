@@ -117,13 +117,11 @@ jobs:
         git version
         git add .
         git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action of web-app"
-        git commit -m "[GITHUB action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
-        git log -2
+        git config --local user.name "GitHub Action"
+        git commit -m "[GitHub Action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
 
-    - name: push
-      env:
-        REPO_TOKEN: ${{secrets.ACCESS_TOKEN_GITHUB}}
-      run: |
-        cd web-app-infra
-        git push https://${REPO_TOKEN}@github.com/oyas/web-app-infra.git
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.ACCESS_TOKEN_GITHUB }}
+        directory: web-app-infra
