@@ -54,9 +54,8 @@ jobs:
           fi
           echo "All ok"
 
-      - name: Get root page
-        run: |
-          curl -LI localhost:8080 --fail -sS --retry 60 --retry-delay 2
+      #- name: Get root page
+      #  run: curl -LI localhost:8080 --fail -sS --retry 60 --retry-delay 2
 
       - name: The job has failed
         if: ${{ failure() }}
@@ -115,8 +114,10 @@ jobs:
     - name: commit and push
       run: |
         cd web-app-infra
+        git version
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action of web-app"
         git commit -m "[GITHUB action] Set image tag to `${GITHUB_SHA}`" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
+        git log -2
         git push
