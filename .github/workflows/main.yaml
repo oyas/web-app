@@ -115,9 +115,10 @@ jobs:
       run: |
         cd web-app-infra
         git version
+        git remote -v
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action of web-app"
-        git commit -m "[GITHUB action] Set image tag to `${GITHUB_SHA}`" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
+        git commit -m "[GITHUB action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
         git log -2
         git push
