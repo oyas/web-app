@@ -57,10 +57,10 @@ jobs:
       - name: Get root page
         run: |
           curl -LI localhost:8080 --fail -sS --retry 60 --retry-delay 2
-          curl_result=$?
-          echo $curl_result
-          docker-compose logs
-          exit $curl_result
+
+      - name: The job has failed
+        if: ${{ failure() }}
+        run: docker-compose logs
 
       - name: Stop services
         run: docker-compose down
