@@ -123,6 +123,6 @@ jobs:
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets.ACCESS_TOKEN_GITHUB }}
         repository: oyas/web-app-infra
+        github_token: ${{ secrets.ACCESS_TOKEN_GITHUB }}
         directory: web-app-infra
