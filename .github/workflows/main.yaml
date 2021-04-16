@@ -119,7 +119,7 @@ jobs:
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "[GitHub Action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
+        git commit -m "[GitHub Action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app/commit/${GITHUB_SHA}"
 
     - name: Push changes
       run: git push
