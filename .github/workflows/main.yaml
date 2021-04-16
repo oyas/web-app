@@ -115,6 +115,7 @@ jobs:
 
     - name: commit
       run: |
+        ls -la
         cd web-app-infra
         git version
         git add .
@@ -123,7 +124,7 @@ jobs:
         git commit -m "[GitHub Action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
 
     - name: Push changes
-      uses: ad-m/github-push-action@v0.6.0
+      uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.ACCESS_TOKEN_GITHUB }}
         repository: oyas/web-app-infra
