@@ -94,29 +94,27 @@ jobs:
       with:
         kustomize-version: "3.9.4"
 
-    - run: git clone https://${REPO_TOKEN}@github.com/oyas/web-app-infra.git
+    - run: git clone https://${REPO_TOKEN}@github.com/oyas/web-app-infra.git .
       env:
         REPO_TOKEN: ${{secrets.ACCESS_TOKEN_GITHUB}}
 
     - name: update image web-app-articles
       run: |
-        cd web-app-infra/apps/articles/overlays/dev
+        cd apps/articles/overlays/dev
         kustomize edit set image oyas/web-app-articles:${GITHUB_SHA}
     
     - name: update image web-app-bff
       run: |
-        cd web-app-infra/apps/bff/overlays/dev/
+        cd apps/bff/overlays/dev/
         kustomize edit set image oyas/web-app-bff:${GITHUB_SHA}
     
     - name: update image web-app-frontend
       run: |
-        cd web-app-infra/apps/frontend/overlays/dev/
+        cd apps/frontend/overlays/dev/
         kustomize edit set image oyas/web-app-frontend:${GITHUB_SHA}
 
     - name: commit
       run: |
-        ls -la
-        cd web-app-infra
         git version
         git add .
         git config --local user.email "action@github.com"
@@ -124,8 +122,4 @@ jobs:
         git commit -m "[GitHub Action] Set dev image tag to ${GITHUB_SHA}" -m "https://github.com/oyas/web-app-infra/commit/${GITHUB_SHA}"
 
     - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.ACCESS_TOKEN_GITHUB }}
-        repository: oyas/web-app-infra
-        directory: web-app-infra
+      run: git push
