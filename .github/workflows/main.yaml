@@ -86,6 +86,8 @@ jobs:
     needs:
     - build
     - test
+    environment:
+      name: production
 
     steps:
     - uses: imranismail/setup-kustomize@v1
