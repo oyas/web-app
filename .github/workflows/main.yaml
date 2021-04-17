@@ -32,11 +32,25 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: docker-compose build
 
-      - name: Start services
+      - name: push image
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker-compose up -d
+          docker login -u oyas -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          docker-compose push
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test services
+        run: docker-compose -f test.yaml build
+
+      - name: Start services
+        run: |
+          docker-compose up -d --build
           sleep 10
 
       - name: Check status of services
@@ -63,23 +77,6 @@ jobs:
 
       - name: Stop services
         run: docker-compose down
-
-      - name: push image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker login -u oyas -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-          docker-compose push
-
-  # second job
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Test services
-        run: docker-compose -f test.yaml build
 
   deploy:
     runs-on: ubuntu-latest
