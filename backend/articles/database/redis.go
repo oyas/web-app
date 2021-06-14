@@ -1,15 +1,23 @@
 package database
 
 import (
+	"os"
 	"context"
 	"github.com/go-redis/redis/v8"
 	"log"
 )
 
 var redisOptions = &redis.Options{
-	Addr:     "redis-articles:6379",  // defined at docker-compose.yaml
+	Addr:     getEnv("APP_REDIS_URL", "localhost:6379"),
 	Password: "",  // no password set
 	DB:       0, // use default DB
+}
+
+func getEnv(key, fallback string) string {
+    if value, ok := os.LookupEnv(key); ok {
+        return value
+    }
+    return fallback
 }
 
 type Redis struct {
