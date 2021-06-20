@@ -11,7 +11,7 @@ const { Resource } = require('@opentelemetry/resources');
 
 const APP_JAEGER_URL = process.env.APP_JAEGER_URL || "http://localhost:14268"
 
-module.exports = (serviceName, tracerName="") => {
+export default (serviceName: string, tracerName: string = ""): any => {
   const provider = new NodeTracerProvider({
     resource: new Resource({ "service.name": serviceName }),
   })

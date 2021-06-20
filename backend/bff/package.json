@@ -4,8 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "ts-node src/main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate:proto": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/generated/ ../protos/**/*.proto",
+    "generate": "graphql-codegen && npm run generate:proto"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +20,14 @@
     "@opentelemetry/instrumentation-grpc": "^0.21.0",
     "@opentelemetry/node": "^0.21.0",
     "apollo-server": "^2.18.2",
-    "graphql": "^15.3.0"
+    "graphql": "^15.3.0",
+    "ts-node": "^9.1.1"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^1.21.5",
+    "@graphql-codegen/typescript": "^1.22.1",
+    "@graphql-codegen/typescript-resolvers": "^1.19.2",
+    "@types/node": "^15.12.4",
+    "typescript": "^4.3.4"
   }
 }

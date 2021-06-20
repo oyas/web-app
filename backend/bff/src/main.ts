@@ -1,49 +1,22 @@
-const { ApolloServer, gql } = require("apollo-server")
-const api = require('@opentelemetry/api');
-const { promisify } = require('util');
-const tracer = require('./tracer')('bff');  // should be executed before @grpc/grpc-js
-const grpc = require("@grpc/grpc-js")
-const protoLoader = require("@grpc/proto-loader")
+import fs from "fs";
+import { ApolloServer, gql } from "apollo-server";
+import { Resolvers } from "./generated/resolvers";
+import api from '@opentelemetry/api';
+import { promisify } from 'util';
+import setUpTracer from './tracer';
+const tracer = setUpTracer('bff');  // should be executed before @grpc/grpc-js
+import * as grpc from '@grpc/grpc-js';
+import * as protoLoader from "@grpc/proto-loader";
+import { ProtoGrpcType } from './generated/articles';
 
 
-const ARTICLES_PROTO_PATH = __dirname + "/../protos/articles/articles.proto"
+const ARTICLES_PROTO_PATH = __dirname + "/../../protos/articles/articles.proto";
+const SCHEMA_GRAPHQL_PATH = __dirname + "/../schema.graphql";
 
-const API_URL_ARTICLES = process.env.API_URL_ARTICLES || "localhost:50052"
-const APP_JAEGER_URL = process.env.APP_JAEGER_URL || "http://localhost:14268"
+const API_URL_ARTICLES = process.env.API_URL_ARTICLES || "localhost:50052";
+const APP_JAEGER_URL = process.env.APP_JAEGER_URL || "http://localhost:14268";
 
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
-const typeDefs = gql`
-  # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
-
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
-  }
-
-  type Article {
-    id: ID!
-    created: Int!
-    userId: String!
-    digest: String!
-  }
-
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
-  type Query {
-    books: [Book]
-    articles(time: Int): [Article!]!
-    time: String
-  }
-
-  type Mutation {
-    addBook(title: String, author: String): Book
-    postArticle(userId: String, digest: String): Article
-  }
-`
+const typeDefs = fs.readFileSync(SCHEMA_GRAPHQL_PATH, { encoding: "utf8" });
 
 const books = [
   {
@@ -58,35 +31,37 @@ const books = [
 
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
-const resolvers = {
+const resolvers: Resolvers = {
   Query: {
     books: () => books,
-    articles: async (_, { time }) => {
+    articles: async (_, args) => {
       const span = tracer.startSpan("getArticles")
       return api.context.with(api.trace.setSpan(api.context.active(), span), async () => {
           console.log('Client traceId ', span.spanContext().traceId);
           const articlesGetArticles = promisify(articles_client.GetArticles).bind(
             articles_client
           )
-          const result = await articlesGetArticles({ time }).catch(err => {
+          const result = await articlesGetArticles({ time: args.time || 0 }).catch((err: any) => {
             console.log(err)
           })
           console.log("[query articles] gRPC result:", result)
           span.end()
-          return result.articles
+          return result ? result.articles as any : []
         }
       )
     },
-    time: () => Date.now(),
+    time: () => Date.now().toString(),
   },
   Mutation: {
     addBook: async (_, { title, author }) => {
       let book = { title, author: author }
-      books.push(book)
+      // books.push(book)
       console.log("addBook() called: books =", books)
       return book
     },
-    postArticle: async (_, { userId, digest }) => {
+    postArticle: async (_, args) => {
+      let userId = args.userId || ""
+      let digest = args.digest || ""
       const span = tracer.startSpan("postArticle")
       return api.context.with(
         api.trace.setSpan(api.context.active(), span),
@@ -95,13 +70,13 @@ const resolvers = {
           const articlesPost = promisify(articles_client.Post).bind(
             articles_client
           )
-          const result = await articlesPost({ userId, digest }).catch(err => {
+          const result = await articlesPost({ userId, digest }).catch((err: any) => {
             console.log(err)
             return { article: {} }
           })
           console.log("gRPC result:", result)
           span.end()
-          return result.article
+          return result ? result.article as any : null
         }
       )
     },
@@ -116,9 +91,9 @@ const articles_package_definition = protoLoader.loadSync(ARTICLES_PROTO_PATH, {
   defaults: true,
   oneofs: true,
 })
-const articles_proto = grpc.loadPackageDefinition(
+const articles_proto = ((grpc.loadPackageDefinition(
   articles_package_definition
-).articles
+) as unknown) as ProtoGrpcType).articles
 const articles_client = new articles_proto.Articles(
   API_URL_ARTICLES,
   grpc.credentials.createInsecure()
@@ -129,6 +104,6 @@ const articles_client = new articles_proto.Articles(
 const server = new ApolloServer({ typeDefs, resolvers })
 
 // The `listen` method launches a web server.
-server.listen().then(({ url }) => {
+server.listen().then(({ url }: {url: String}) => {
   console.log(`🚀  Server ready at ${url}`)
 })
