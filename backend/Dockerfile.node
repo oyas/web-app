@@ -14,5 +14,7 @@ RUN npm install
 COPY ./protos /app/protos
 COPY ./bff /app/bff
 
+RUN npm run generate
+
 EXPOSE 4000
 CMD [ "npm", "start" ]
