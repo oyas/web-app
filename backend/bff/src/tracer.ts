@@ -1,34 +1,21 @@
-'use strict';
+import api, { Tracer } from "@opentelemetry/api";
+import { NodeTracerProvider } from "@opentelemetry/node";
+import { SimpleSpanProcessor } from "@opentelemetry/tracing";
+import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
+import { Resource } from "@opentelemetry/resources";
 
-const api = require('@opentelemetry/api');
-const { registerInstrumentations } = require('@opentelemetry/instrumentation');
-const { NodeTracerProvider } = require('@opentelemetry/node');
-const { SimpleSpanProcessor } = require('@opentelemetry/tracing');
-const { JaegerExporter } = require('@opentelemetry/exporter-jaeger');
-const { GrpcInstrumentation } = require('@opentelemetry/instrumentation-grpc');
-const { Resource } = require('@opentelemetry/resources');
-
-
-const APP_JAEGER_URL = process.env.APP_JAEGER_URL || "http://localhost:14268"
-
-export default (serviceName: string, tracerName: string = ""): any => {
+export function setUpTracer(jaegerUrl: string, serviceName: string, tracerName: string = ""): Tracer {
   const provider = new NodeTracerProvider({
     resource: new Resource({ "service.name": serviceName }),
-  })
+  });
 
   let exporter = new JaegerExporter({
     // tags: [],
-    endpoint: APP_JAEGER_URL + "/api/traces",
-  })
+    endpoint: jaegerUrl + "/api/traces",
+  });
 
-  provider.addSpanProcessor(new SimpleSpanProcessor(exporter))
-  provider.register()
-
-  registerInstrumentations({
-    instrumentations: [
-      new GrpcInstrumentation({}),
-    ],
-  })
+  provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+  provider.register();
 
   return api.trace.getTracer(tracerName);
 };
