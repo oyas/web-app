@@ -32,22 +32,10 @@ services:
     ports:
     - "4000:4000"
     links:
-    - greeter_server
     - articles
     environment:
     - API_URL_ARTICLES=articles:50052
     - APP_JAEGER_URL=http://jaeger:14268
-  greeter_server:
-    build:
-      context: backend
-      dockerfile: "Dockerfile.go"
-      target: app
-      args:
-        SERVICE_NAME: "greeter_server"
-    ports:
-    - "50051:50051"
-    links:
-    - redis
   articles:
     build:
       context: backend
@@ -65,8 +53,6 @@ services:
     - APP_REDIS_URL=redis-articles:6379
     - APP_JAEGER_URL=http://jaeger:14268
     # - JAEGER_AGENT_PORT=6831
-  redis:
-    image: "redis:alpine"
   redis-articles:
     image: "redis:alpine"
   jaeger:
