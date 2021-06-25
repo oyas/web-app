@@ -1,4 +1,4 @@
-FROM node:14-alpine as develop
+FROM node:15-alpine as develop
 
 RUN mkdir -p /app
 
@@ -12,10 +12,9 @@ CMD sh -c ' \
     echo signal received! finishing...; \
     kill \$(jobs -p); \
     wait; \
-    npm run clean \
   " SIGINT SIGQUIT SIGTERM; \
   npm install && \
-  npm run develop & \
+  npm run dev -- -p 8000 & \
   wait \
 '
 
@@ -24,6 +23,8 @@ FROM develop as production
 
 COPY . /app
 
-RUN npm install --only=production
+RUN npm install && npm run build
 
-CMD sh -c "npm run build && npm run serve -- --port 8000"
+RUN rm -rf nodemodules && npm install --only=production
+
+CMD npm run start -- --port 8000
