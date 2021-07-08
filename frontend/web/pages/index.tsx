@@ -11,6 +11,7 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Divider from '@material-ui/core/Divider';
+import Profile from '../components/userinfo';
 
 // This query is executed at run time by Apollo.
 const GET_ARTICLES = gql`
@@ -92,6 +93,7 @@ export default function Home() {
       </Head>
 
       <main>
+        <Profile />
         <form
           onSubmit={e => {
             e.preventDefault()
