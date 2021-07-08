@@ -1,7 +1,9 @@
-import type { AppProps } from 'next/app'
 import { ApolloProvider } from '@apollo/client';
 import { client } from '../lib/apollo/client';
 import { Auth0Provider } from "@auth0/auth0-react";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { ThemeProvider } from '@material-ui/core/styles';
+import theme from '../theme';
 
 function GlobalWraps({ children }: { children: JSX.Element[] }) {
   return (
@@ -12,7 +14,12 @@ function GlobalWraps({ children }: { children: JSX.Element[] }) {
         (typeof window !== "undefined" && window.location.origin) || ""
       }
     >
-      <ApolloProvider client={client}>{children}</ApolloProvider>
+      <ApolloProvider client={client}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </ApolloProvider>
     </Auth0Provider>
   );
 }

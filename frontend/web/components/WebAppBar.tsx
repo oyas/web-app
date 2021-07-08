@@ -10,6 +10,7 @@ import Box from '@material-ui/core/Box';
 
 const WebAppBar = () => {
   const { loginWithRedirect, isAuthenticated, logout } = useAuth0();
+  const returnTo = (typeof window !== "undefined" && window.location.origin) || ""
 
   return (
     <AppBar position="static">
@@ -30,7 +31,7 @@ const WebAppBar = () => {
           </Button>
         )}
         {isAuthenticated && (
-          <Button variant="contained" onClick={() => logout({ returnTo: "/" })}>
+          <Button variant="contained" onClick={() => logout({ returnTo })}>
             Log Out
           </Button>
         )}
