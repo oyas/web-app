@@ -1,9 +1,8 @@
-import { ApolloProvider } from '@apollo/client';
-import { client } from '../lib/apollo/client';
 import { Auth0Provider } from "@auth0/auth0-react";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from '@material-ui/core/styles';
 import theme from '../theme';
+import { Auth0AuthorizedApolloProvider } from "../lib/apollo/Auth0AuthorizedApolloProvider";
 
 function GlobalWraps({ children }: { children: JSX.Element[] }) {
   return (
@@ -13,13 +12,15 @@ function GlobalWraps({ children }: { children: JSX.Element[] }) {
       redirectUri={
         (typeof window !== "undefined" && window.location.origin) || ""
       }
+      audience="https://localhost:4000/graphql"
+      scope="read:messages"
     >
-      <ApolloProvider client={client}>
+      <Auth0AuthorizedApolloProvider>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           {children}
         </ThemeProvider>
-      </ApolloProvider>
+      </Auth0AuthorizedApolloProvider>
     </Auth0Provider>
   );
 }
