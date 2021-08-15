@@ -35,6 +35,7 @@ services:
     - articles
     environment:
     - API_URL_ARTICLES=articles:50052
+    - API_URL_AUTH=auth:50054
     - APP_JAEGER_URL=http://jaeger:14268
   articles:
     build:
@@ -54,6 +55,24 @@ services:
     - APP_JAEGER_URL=http://jaeger:14268
     # - JAEGER_AGENT_PORT=6831
   redis-articles:
+    image: "redis:alpine"
+  auth:
+    build:
+      context: backend
+      dockerfile: "Dockerfile.go"
+      target: app
+      args:
+        SERVICE_NAME: "auth"
+    image: oyas/web-app-auth:${IMAGE_TAG}
+    ports:
+    - "50054:50054"
+    links:
+    - redis-auth
+    - jaeger
+    environment:
+    - APP_REDIS_URL=redis-auth:6379
+    - APP_JAEGER_URL=http://jaeger:14268
+  redis-auth:
     image: "redis:alpine"
   jaeger:
     image: jaegertracing/all-in-one:1.22

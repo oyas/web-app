@@ -7,3 +7,5 @@ PROTOC_GO="$PROTOC --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --g
 
 $PROTOC_GO helloworld/helloworld.proto
 $PROTOC_GO articles/articles.proto
+$PROTOC_GO user/user.proto
+$PROTOC_GO auth/auth.proto

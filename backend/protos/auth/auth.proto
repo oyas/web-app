@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "backend/protos/auth";
+
+package auth;
+
+service Auth {
+  rpc Exchange (ExchangeRequest) returns (ExchangeResponse) {}
+}
+
+message ExchangeRequest {
+}
+
+message ExchangeResponse {
+  string token = 1;
+}
