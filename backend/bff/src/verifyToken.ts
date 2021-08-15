@@ -9,7 +9,6 @@ import jwt, {
 } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 import { promisify } from "util";
-import { Clients, metadata } from "./grpc-clients";
 
 const client = jwksClient({
   jwksUri: "https://oyas.jp.auth0.com/.well-known/jwks.json",
@@ -35,7 +34,9 @@ type verifyFuncType = (
 ) => JwtPayload;
 const promisifiedJwtVerify = <verifyFuncType>promisify(jwt.verify);
 
-export async function verifyToken(webAccessToken: string): Promise<any> {
+export async function verifyToken(
+  webAccessToken: string
+): Promise<JwtPayload | undefined> {
   console.log("accessToken:", webAccessToken);
   if (!webAccessToken) {
     console.log("verify skipped");
@@ -54,26 +55,5 @@ export async function verifyToken(webAccessToken: string): Promise<any> {
     return undefined;
   }
 
-  return { user, webAccessToken };
-}
-
-export async function verifyTokenAndExchange(
-  accessToken: string,
-  clients: Clients
-): Promise<any> {
-  let data = await verifyToken(accessToken);
-  let token = await exchangeToken(accessToken, clients);
-  return { ...data, token };
-}
-
-async function exchangeToken(
-  accessToken: string,
-  clients: Clients
-): Promise<string | undefined> {
-  let md = metadata(accessToken);
-  const result = await clients.auth.Exchange({}, md, {}).catch((err: any) => {
-    console.log(err);
-  });
-  console.log("[query auth] gRPC result:", result);
-  return result?.token;
+  return user;
 }

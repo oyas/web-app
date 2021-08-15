@@ -2,10 +2,11 @@ import { Resolvers } from "./generated/resolvers";
 import api, { Tracer } from "@opentelemetry/api";
 import { promisify } from "util";
 import { Clients } from "./grpc-clients";
+import { ContextType } from "./context";
 
 // Resolvers define the technique for fetching the types defined in the
 // schema. This resolver retrieves books from the "books" array above.
-export function makeResolvers(tracer: Tracer, clients: Clients): Resolvers {
+export function makeResolvers(tracer: Tracer, clients: Clients): Resolvers<ContextType> {
   const books = [
     {
       title: "The Awakening",
@@ -20,12 +21,14 @@ export function makeResolvers(tracer: Tracer, clients: Clients): Resolvers {
   return {
     Query: {
       books: () => books,
-      articles: async (_, args) => {
+      articles: async (_, args, ctx) => {
         const span = tracer.startSpan("getArticles");
         return api.context.with(
           api.trace.setSpan(api.context.active(), span),
           async () => {
             console.log("Client traceId ", span.spanContext().traceId);
+            console.log("context: ", ctx);
+            console.log("Exchanged token: ", await ctx.getExchangedToken());
             const articlesGetArticles = promisify(
               clients.articles.GetArticles
             ).bind(clients.articles);

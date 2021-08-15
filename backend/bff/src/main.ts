@@ -3,7 +3,7 @@ import { ApolloServer } from "apollo-server";
 import { setUpTracer } from "./tracer";
 import { makeGrpcClients } from "./grpc-clients";
 import { makeResolvers } from "./resolvers";
-import { verifyTokenAndExchange } from "./verifyToken";
+import { makeContext } from "./context";
 
 
 const SCHEMA_GRAPHQL_PATH = __dirname + "/../schema.graphql";
@@ -30,8 +30,7 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     // see https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields
     const token = req.headers.authorization || '';
-    const data = await verifyTokenAndExchange(token, clients);
-    return { ...data };
+    return await makeContext(token, clients);
   },
 });
 
