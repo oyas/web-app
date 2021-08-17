@@ -7,8 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+
+	"github.com/patrickmn/go-cache"
 )
 
 type Jwks struct {
@@ -23,6 +26,11 @@ type JSONWebKeys struct {
 	E   string   `json:"e"`
 	X5c []string `json:"x5c"`
 }
+
+var keysCache = cache.New(5*time.Minute, 10*time.Minute)
+
+const cacheKey = "key"
+const jwksUrl = "https://oyas.jp.auth0.com/.well-known/jwks.json"
 
 func Parse(ctx context.Context, tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -76,25 +84,29 @@ func GetValidationKey(ctx context.Context, token *jwt.Token) (interface{}, error
 func getPemCert(ctx context.Context, token *jwt.Token) (string, error) {
 	cert := ""
 
-	url := "https://oyas.jp.auth0.com/.well-known/jwks.json"
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return cert, err
-	}
-	resp, err := client.Http.Do(req)
-	if err != nil {
-		return cert, err
-	}
-	defer resp.Body.Close()
-
 	var jwks = Jwks{}
-	err = json.NewDecoder(resp.Body).Decode(&jwks)
+	if x, found := keysCache.Get(cacheKey); found {
+		jwks = x.(Jwks)
+	} else {
+		req, err := http.NewRequestWithContext(ctx, "GET", jwksUrl, nil)
+		if err != nil {
+			return cert, err
+		}
+		resp, err := client.Http.Do(req)
+		if err != nil {
+			return cert, err
+		}
+		defer resp.Body.Close()
 
-	if err != nil {
-		return cert, err
+		err = json.NewDecoder(resp.Body).Decode(&jwks)
+		if err != nil {
+			return cert, err
+		}
+
+		keysCache.Set(cacheKey, jwks, 24*time.Hour)
 	}
 
-	for k, _ := range jwks.Keys {
+	for k := range jwks.Keys {
 		if token.Header["kid"] == jwks.Keys[k].Kid {
 			cert = "-----BEGIN CERTIFICATE-----\n" + jwks.Keys[k].X5c[0] + "\n-----END CERTIFICATE-----"
 		}
