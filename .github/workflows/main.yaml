@@ -45,6 +45,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Generate RSA keys
+        run: bash backend/auth/keys/generate.sh
+
       - name: Test services
         run: docker-compose -f test.yaml build
 
