@@ -29,7 +29,12 @@ func (s *Server) Exchange(ctx context.Context, in *pb.ExchangeRequest) (*pb.Exch
 		return nil, err
 	}
 
-	var newToken = "xxx" + strconv.Itoa(num)
+	userKey := "xxx" + strconv.Itoa(num)
+	newToken, err := auth.Sign(&auth.TokenData{Sub: userKey})
+	if err != nil {
+		log.Printf("sign error: %v", err)
+		return nil, err
+	}
 
 	response := &pb.ExchangeResponse{
 		Token: newToken,

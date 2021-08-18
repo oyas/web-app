@@ -48,7 +48,7 @@ func main() {
 
 	// init openTelemetry
 	jaegerUrl := fmt.Sprintf("%s/api/traces", getEnv(APP_JAEGER_URL, "http://localhost:14268"))
-	fmt.Printf("jaegerUrl: %v\n", jaegerUrl)
+	log.Printf("jaegerUrl: %v\n", jaegerUrl)
 	tp, err := trace.Setup(jaegerUrl, ServiceName, Environment)
 	if err != nil {
 		log.Fatal(err)

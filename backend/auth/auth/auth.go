@@ -3,6 +3,7 @@ package auth
 import (
 	"auth/client"
 	"context"
+	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -58,18 +59,18 @@ func Parse(ctx context.Context, tokenString string) (*jwt.Token, error) {
 	return token, err
 }
 
-func GetValidationKey(ctx context.Context, token *jwt.Token) (interface{}, error) {
+func GetValidationKey(ctx context.Context, token *jwt.Token) (*rsa.PublicKey, error) {
 	// Verify 'aud' claim
 	aud := "https://localhost:4000/graphql"
 	checkAud := token.Claims.(jwt.MapClaims).VerifyAudience(aud, false)
 	if !checkAud {
-		return token, errors.New("invalid audience")
+		return nil, errors.New("invalid audience")
 	}
 	// Verify 'iss' claim
 	iss := "https://oyas.jp.auth0.com/"
 	checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(iss, false)
 	if !checkIss {
-		return token, errors.New("invalid issuer")
+		return nil, errors.New("invalid issuer")
 	}
 
 	cert, err := getPemCert(ctx, token)
@@ -77,8 +78,7 @@ func GetValidationKey(ctx context.Context, token *jwt.Token) (interface{}, error
 		return nil, err
 	}
 
-	result, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
-	return result, nil
+	return jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
 }
 
 func getPemCert(ctx context.Context, token *jwt.Token) (string, error) {

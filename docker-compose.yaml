@@ -72,6 +72,9 @@ services:
     environment:
     - APP_REDIS_URL=redis-auth:6379
     - APP_JAEGER_URL=http://jaeger:14268
+    - SIGNING_KEY_PATH=/app/keys/app.rsa
+    volumes:
+    - ./backend/auth/keys:/app/keys
   redis-auth:
     image: "redis:alpine"
   jaeger:
