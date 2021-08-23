@@ -34,7 +34,9 @@ jobs:
         name: Build services
         env:
           IMAGE_TAG: ${{ github.sha }}
-        run: docker buildx bake -f docker-bake.hcl
+        uses: docker/bake-action@master
+        with:
+          files: docker-bake.hcl
 
   test:
     runs-on: ubuntu-latest
