@@ -14,16 +14,16 @@ target "frontend" {
     context = "frontend/web"
     dockerfile = "Dockerfile"
     tags = ["oyas/web-app-frontend:${IMAGE_TAG}"]
-    cache-from = ["type=local,src=.cache/frontend"]
-    cache-to = ["type=local,dest=.cache/frontend"]
+    cache-from = ["type=gha"]
+    cache-to = ["type=gha,mode=max"]
 }
 
 target "bff" {
     context = "backend"
     dockerfile = "Dockerfile.node"
     tags = ["oyas/web-app-bff:${IMAGE_TAG}"]
-    cache-from = ["type=local,src=.cache/bff"]
-    cache-to = ["type=local,dest=.cache/bff"]
+    cache-from = ["type=gha"]
+    cache-to = ["type=gha,mode=max"]
 }
 
 target "articles" {
@@ -34,8 +34,8 @@ target "articles" {
         SERVICE_NAME = "articles"
     }
     tags = ["oyas/web-app-articles:${IMAGE_TAG}"]
-    cache-from = ["type=local,src=.cache/articles"]
-    cache-to = ["type=local,dest=.cache/articles"]
+    cache-from = ["type=gha"]
+    cache-to = ["type=gha,mode=max"]
 }
 
 target "articles-test" {
@@ -51,8 +51,8 @@ target "auth" {
         SERVICE_NAME = "auth"
     }
     tags = ["oyas/web-app-auth:${IMAGE_TAG}"]
-    cache-from = ["type=local,src=.cache/auth"]
-    cache-to = ["type=local,dest=.cache/auth"]
+    cache-from = ["type=gha"]
+    cache-to = ["type=gha,mode=max"]
 }
 
 target "auth-test" {
