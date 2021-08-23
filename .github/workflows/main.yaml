@@ -54,11 +54,27 @@ jobs:
       -
         uses: actions/checkout@v2
       -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      -
         name: Generate RSA keys
         run: bash backend/auth/keys/generate.sh
       -
         name: Test services
-        run: docker-compose -f test.yaml build
+        env:
+          CACHE_SRC_DIR: /tmp/.buildx-cache
+        uses: docker/bake-action@master
+        with:
+          files: docker-bake.hcl
+          targets: test
       -
         name: Start services
         run: |
