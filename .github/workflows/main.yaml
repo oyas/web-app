@@ -1,6 +1,6 @@
 name: CI/CD
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
@@ -28,9 +28,16 @@ jobs:
         name: Build services
         env:
           IMAGE_TAG: ${{ github.sha }}
+          CACHE_SRC_DIR: /tmp/.buildx-cache
+          CACHE_DIST_DIR: /tmp/.buildx-cache-new
         uses: docker/bake-action@master
         with:
           files: docker-bake.hcl
+      -
+        name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   test:
     runs-on: ubuntu-latest
