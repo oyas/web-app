@@ -75,6 +75,7 @@ jobs:
         with:
           files: docker-bake.hcl
           targets: test
+          load: true
       -
         name: Start services
         run: |
