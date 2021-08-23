@@ -25,19 +25,13 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Build services
+      -
+        uses: actions/checkout@v2
+      -
+        name: Build services
         env:
           IMAGE_TAG: ${{ github.sha }}
-        run: docker-compose build
-
-      - name: push image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker login -u oyas -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-          docker-compose push
+        run: docker buildx bake -f docker-bake.hcl
 
   test:
     runs-on: ubuntu-latest
@@ -81,11 +75,29 @@ jobs:
       - name: Stop services
         run: docker-compose down
 
-  deploy:
+  push-images:
     runs-on: ubuntu-latest
     needs:
     - build
     - test
+    environment:
+      name: production
+    
+    steps:
+      -
+        uses: actions/checkout@v2
+      -
+        name: push images
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker login -u oyas -p ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          docker-compose push
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+    - push-images
     environment:
       name: production
 
