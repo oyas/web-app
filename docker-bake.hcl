@@ -14,16 +14,16 @@ target "frontend" {
     context = "frontend/web"
     dockerfile = "Dockerfile"
     tags = ["oyas/web-app-frontend:${IMAGE_TAG}"]
-    cache-from = ["type=gha"]
-    cache-to = ["type=gha,mode=max"]
+    cache-from = ["type=gha,scope=frontend"]
+    cache-to = ["type=gha,scope=frontend,mode=max"]
 }
 
 target "bff" {
     context = "backend"
     dockerfile = "Dockerfile.node"
     tags = ["oyas/web-app-bff:${IMAGE_TAG}"]
-    cache-from = ["type=gha"]
-    cache-to = ["type=gha,mode=max"]
+    cache-from = ["type=gha,scope=frontend"]
+    cache-to = ["type=gha,scope=frontend,mode=max"]
 }
 
 target "articles" {
