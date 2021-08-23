@@ -28,6 +28,9 @@ jobs:
       -
         uses: actions/checkout@v2
       -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
         name: Build services
         env:
           IMAGE_TAG: ${{ github.sha }}
@@ -37,20 +40,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Generate RSA keys
+      -
+        uses: actions/checkout@v2
+      -
+        name: Generate RSA keys
         run: bash backend/auth/keys/generate.sh
-
-      - name: Test services
+      -
+        name: Test services
         run: docker-compose -f test.yaml build
-
-      - name: Start services
+      -
+        name: Start services
         run: |
           docker-compose up -d --build
           sleep 10
-
-      - name: Check status of services
+      -
+        name: Check status of services
         run: |
           docker-compose logs
           echo ""
@@ -64,15 +68,15 @@ jobs:
               exit 1
           fi
           echo "All ok"
-
-      - name: Get root page
+      -
+        name: Get root page
         run: curl -LI localhost:9000 --fail -sS --retry 60 --retry-delay 2
-
-      - name: The job has failed
+      -
+        name: The job has failed
         if: ${{ failure() }}
         run: docker-compose logs
-
-      - name: Stop services
+      -
+        name: Stop services
         run: docker-compose down
 
   push-images:
@@ -102,36 +106,37 @@ jobs:
       name: production
 
     steps:
-    - uses: imranismail/setup-kustomize@v1
+    -
+      uses: imranismail/setup-kustomize@v1
       with:
         kustomize-version: "3.9.4"
-
-    - run: git clone https://${REPO_TOKEN}@github.com/oyas/web-app-infra.git .
+    -
+      run: git clone https://${REPO_TOKEN}@github.com/oyas/web-app-infra.git .
       env:
         REPO_TOKEN: ${{secrets.ACCESS_TOKEN_GITHUB}}
-
-    - name: update image web-app-articles
+    -
+      name: update image web-app-articles
       run: |
         cd apps/articles/overlays/dev
         kustomize edit set image oyas/web-app-articles:${GITHUB_SHA}
-    
-    - name: update image web-app-bff
+    -
+      name: update image web-app-bff
       run: |
         cd apps/bff/overlays/dev/
         kustomize edit set image oyas/web-app-bff:${GITHUB_SHA}
-    
-    - name: update image web-app-frontend
+    -
+      name: update image web-app-frontend
       run: |
         cd apps/frontend/overlays/dev/
         kustomize edit set image oyas/web-app-frontend:${GITHUB_SHA}
-
-    - name: commit
+    -
+      name: commit
       run: |
         git version
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -m "[GitHub Action] Set dev image tag to https://github.com/oyas/web-app/commit/${GITHUB_SHA}"
-
-    - name: Push changes
+    -
+      name: Push changes
       run: git push
