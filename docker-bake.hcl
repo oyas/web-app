@@ -22,8 +22,8 @@ target "bff" {
     context = "backend"
     dockerfile = "Dockerfile.node"
     tags = ["oyas/web-app-bff:${IMAGE_TAG}"]
-    cache-from = ["type=gha,scope=frontend"]
-    cache-to = ["type=gha,scope=frontend,mode=max"]
+    cache-from = ["type=gha,scope=bff"]
+    cache-to = ["type=gha,scope=bff,mode=max"]
 }
 
 target "articles" {
@@ -34,8 +34,8 @@ target "articles" {
         SERVICE_NAME = "articles"
     }
     tags = ["oyas/web-app-articles:${IMAGE_TAG}"]
-    cache-from = ["type=gha"]
-    cache-to = ["type=gha,mode=max"]
+    cache-from = ["type=gha,scope=articles"]
+    cache-to = ["type=gha,scope=articles,mode=max"]
 }
 
 target "articles-test" {
@@ -51,8 +51,8 @@ target "auth" {
         SERVICE_NAME = "auth"
     }
     tags = ["oyas/web-app-auth:${IMAGE_TAG}"]
-    cache-from = ["type=gha"]
-    cache-to = ["type=gha,mode=max"]
+    cache-from = ["type=gha,scope=auth"]
+    cache-to = ["type=gha,scope=auth,mode=max"]
 }
 
 target "auth-test" {
