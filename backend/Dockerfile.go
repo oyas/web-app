@@ -2,7 +2,7 @@ FROM golang:1.15.6-alpine as builder
 
 ARG SERVICE_NAME="greeter_server"
 
-RUN apk add --no-cache ca-certificates && update-ca-certificates
+RUN apk add --no-cache openssl bash ca-certificates && update-ca-certificates
 
 COPY ./protos /go/src/protos
 COPY ./${SERVICE_NAME} /go/src/${SERVICE_NAME}
@@ -22,4 +22,4 @@ ENTRYPOINT ["/app/main"]
 
 FROM builder as test
 
-RUN CGO_ENABLED=0 go test -v ./...
+RUN bash ./test.sh

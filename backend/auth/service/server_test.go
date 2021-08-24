@@ -31,7 +31,7 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return lis.Dial()
 }
 
-func TestExchange(t *testing.T) {
+func TestExchangeFail(t *testing.T) {
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
@@ -41,8 +41,8 @@ func TestExchange(t *testing.T) {
 	client := pb.NewAuthClient(conn)
 	resp, err := client.Exchange(ctx, &pb.ExchangeRequest{})
 	if err != nil {
-		t.Fatalf("Exchange failed: %v", err)
+		log.Printf("Expected result. (Exchange failed: %v)", err)
+	} else {
+		t.Fatalf("Not expected result. Response: %+v", resp)
 	}
-	log.Printf("Response: %+v", resp)
-	// Test for output here.
 }

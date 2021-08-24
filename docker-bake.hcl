@@ -15,7 +15,7 @@ group "default" {
 }
 
 group "test" {
-    targets = ["articles-test"]
+    targets = ["articles-test", "auth-test"]
 }
 
 target "frontend" {
