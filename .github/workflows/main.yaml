@@ -61,7 +61,6 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
       -
@@ -75,6 +74,36 @@ jobs:
         with:
           files: docker-bake.hcl
           targets: test
+
+  test2:
+    runs-on: ubuntu-latest
+
+    steps:
+      -
+        uses: actions/checkout@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}-ignored
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      -
+        name: Generate RSA keys
+        run: bash backend/auth/keys/generate.sh
+      -
+        name: Build services
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          CACHE_SRC_DIR: /tmp/.buildx-cache
+          CACHE_DIST_DIR: /tmp/.buildx-cache-new
+        uses: docker/bake-action@master
+        with:
+          files: docker-bake.hcl
           load: true
       -
         name: Show images
@@ -120,6 +149,7 @@ jobs:
     needs:
     - build
     - test
+    - test2
     environment:
       name: production
     
