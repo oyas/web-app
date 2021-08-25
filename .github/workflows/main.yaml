@@ -112,6 +112,8 @@ jobs:
           docker images
       -
         name: Start services
+        env:
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker-compose up -d
           sleep 10
