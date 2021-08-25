@@ -5,10 +5,32 @@ Web App test
 
 Infra repository: [web-app-infra](https://github.com/oyas/web-app-infra)
 
+
+## Setup
+
+```
+$ bash ./setup.sh
+```
+
+
 ## Run
 
 ```
 $ docker-compose up
 ```
 
-open http://localhost:8080/ in your browser
+open http://localhost:9000/ in your browser
+
+
+## Build images
+
+```
+$ docker buildx bake -f docker-bake.hcl
+```
+
+
+## Test
+
+```
+$ docker buildx bake -f docker-bake.hcl test
+```
