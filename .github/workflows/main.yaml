@@ -77,10 +77,18 @@ jobs:
           targets: test
           load: true
       -
+        name: Show images
+        run: |
+          docker images
+      -
         name: Start services
         run: |
-          docker-compose up -d --build
+          docker-compose up -d
           sleep 10
+      -
+        name: Show images
+        run: |
+          docker images
       -
         name: Check status of services
         run: |
