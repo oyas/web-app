@@ -218,6 +218,11 @@ jobs:
         cd apps/frontend/overlays/dev/
         kustomize edit set image oyas/web-app-frontend:${GITHUB_SHA}
     -
+      name: update image web-app-auth
+      run: |
+        cd apps/auth/overlays/dev/
+        kustomize edit set image oyas/web-app-auth:${GITHUB_SHA}
+    -
       name: commit
       run: |
         git version
