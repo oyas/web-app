@@ -10,6 +10,8 @@ const URL_BFF =
   process.env.API_URL_BFF_RUNTIME || process.env.NEXT_PUBLIC_URL_BFF || "";
 
 export function AuthorizedApolloClient(accessToken: string) {
+  console.log("NEXT_PUBLIC_URL_BFF=", process.env.NEXT_PUBLIC_URL_BFF);
+  console.log("API_URL_BFF_RUNTIME=", process.env.API_URL_BFF_RUNTIME);
   const httpLink = new HttpLink({ uri: `${URL_BFF}/graphql` });
 
   const authMiddleware = new ApolloLink((operation, forward) => {
