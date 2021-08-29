@@ -21,9 +21,6 @@ services:
     # - ./frontend/web:/app
     links:
     - bff
-    environment:
-    - API_URL_BFF=http://bff:4000
-    - API_URL_BFF_RUNTIME=  # same host
   bff:
     build:
       context: backend
