@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from
 
 const Profile = (props: { showMetadata?: boolean; }) => {
   const { user, isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
-  const [userMetadata, setUserMetadata] = useState(null);
+  const [userMetadata, setUserMetadata] = useState<any>(null);
 
   const userId = user?.sub
 
@@ -44,7 +44,11 @@ const Profile = (props: { showMetadata?: boolean; }) => {
 
         setUserMetadata(data);
       } catch (e) {
-        console.log(e.message);
+        if (e instanceof Error) {
+          console.log(e.message);
+        } else {
+          console.log(e);
+        }
       }
     };
 
