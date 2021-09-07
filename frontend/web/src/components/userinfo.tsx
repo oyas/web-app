@@ -3,8 +3,9 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Image from 'next/image'
 import React, { useEffect, useState } from "react";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
 
-const Profile = () => {
+const Profile = (props: { showMetadata?: boolean; }) => {
   const { user, isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
   const [userMetadata, setUserMetadata] = useState(null);
 
@@ -54,6 +55,33 @@ const Profile = () => {
     return <div>Loading ...</div>;
   }
 
+  let userInfoTable = userMetadata ? (
+    <TableContainer>
+      <Table aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Key</TableCell>
+            <TableCell>Value</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {Object.entries(userMetadata).map(([key, value]) => (
+            <TableRow key={key}>
+              <TableCell component="th" scope="row">
+                {key}
+              </TableCell>
+              <TableCell>
+                {typeof value == "string" ? value : JSON.stringify(value)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  ) : (
+    <Typography>No user metadata defined</Typography>
+  );
+
   return (
     (isAuthenticated && user != undefined && (
       <Grid container spacing={2}>
@@ -68,13 +96,8 @@ const Profile = () => {
         <Grid item xs={9}>
           <Typography variant="h4">{user.name}</Typography>
           <Typography>{user.email}</Typography>
-          <Typography variant="h5">User Metadata</Typography>
-          {userMetadata ? (
-            <pre>{JSON.stringify(userMetadata, null, 2)}</pre>
-          ) : (
-            "No user metadata defined"
-          )}
         </Grid>
+        {props.showMetadata && userInfoTable}
       </Grid>
     )) ||
     null

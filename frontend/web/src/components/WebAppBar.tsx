@@ -7,15 +7,39 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
+import Drawer from '@material-ui/core/Drawer';
+import React from "react";
+import { List, ListItem, ListItemText } from "@material-ui/core";
 
 const WebAppBar = () => {
   const { loginWithRedirect, isAuthenticated, logout } = useAuth0();
   const returnTo = (typeof window !== "undefined" && window.location.origin) || ""
 
+  const [state, setState] = React.useState(false);
+
+  const toggleDrawer = (open: boolean) => (
+    event: React.KeyboardEvent | React.MouseEvent,
+  ) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' ||
+        (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return;
+    }
+
+    setState(open);
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
-        <IconButton edge="start" color="inherit" aria-label="menu">
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          onClick={toggleDrawer(true)}
+        >
           <MenuIcon />
         </IconButton>
         <Box flexGrow={1}>
@@ -36,6 +60,17 @@ const WebAppBar = () => {
           </Button>
         )}
       </Toolbar>
+      <Drawer anchor="left" open={state} onClose={toggleDrawer(false)}>
+        <Box onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+          <List style={{ width: 250 }}>
+            <Link href="/user" style={{ textDecoration: "none" }}>
+              <ListItem button onClick={toggleDrawer(false)}>
+                <ListItemText>user info</ListItemText>
+              </ListItem>
+            </Link>
+          </List>
+        </Box>
+      </Drawer>
     </AppBar>
   );
 };
