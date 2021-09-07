@@ -1,7 +1,8 @@
 Web App test
 =====
 
-[![CI/CD](https://github.com/oyas/web-app/actions/workflows/main.yaml/badge.svg)](https://github.com/oyas/web-app/actions/workflows/main.yaml)
+[![CI](https://github.com/oyas/web-app/actions/workflows/ci.yaml/badge.svg)](https://github.com/oyas/web-app/actions/workflows/ci.yaml)
+[![CD](https://github.com/oyas/web-app/actions/workflows/cd.yaml/badge.svg)](https://github.com/oyas/web-app/actions/workflows/cd.yaml)
 
 Infra repository: [web-app-infra](https://github.com/oyas/web-app-infra)
 
