@@ -2,12 +2,6 @@ name: CD
 
 # Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -29,18 +23,22 @@ jobs:
         id: images_exist
         name: check images exist
         run: |
-          docker manifest inspect oyas/web-app-bff:${GITHUB_SHA}
-          echo "::set-output name=result::$?"
+          if docker manifest inspect oyas/web-app-bff:${GITHUB_SHA}; then
+            result=exist
+          else
+            result=not-exist
+          fi
+          echo "::set-output name=result::$result"
       -
-        if: ${{ steps.images_exist.outputs.result != '0' }}
+        if: ${{ steps.images_exist.outputs.result == 'not-exist' }}
         uses: actions/checkout@v2
       -
         name: Set up Docker Buildx
-        if: ${{ steps.images_exist.outputs.result != '0' }}
+        if: ${{ steps.images_exist.outputs.result == 'not-exist' }}
         uses: docker/setup-buildx-action@v1
       -
         name: Cache Docker layers
-        if: ${{ steps.images_exist.outputs.result != '0' }}
+        if: ${{ steps.images_exist.outputs.result == 'not-exist' }}
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
@@ -49,14 +47,14 @@ jobs:
             ${{ runner.os }}-buildx-
       -
         name: Login to DockerHub
-        if: ${{ steps.images_exist.outputs.result != '0' }}
+        if: ${{ steps.images_exist.outputs.result == 'not-exist' }}
         uses: docker/login-action@v1
         with:
           username: oyas
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
       -
         name: Push images
-        if: ${{ steps.images_exist.outputs.result != '0' }}
+        if: ${{ steps.images_exist.outputs.result == 'not-exist' }}
         env:
           IMAGE_TAG: ${{ github.sha }}
           CACHE_SRC_DIR: /tmp/.buildx-cache
