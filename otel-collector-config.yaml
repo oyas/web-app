@@ -1,0 +1,50 @@
+extensions:
+  health_check:
+  pprof:
+  zpages:
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+  jaeger:
+    protocols:
+      thrift_http:
+
+exporters:
+  logging:
+  jaeger:
+    endpoint: "jaeger:14250"
+    insecure: true
+
+processors:
+  attributes/exclude:
+    exclude:
+      match_type: strict
+      attributes:
+        - {key: A, value: "1"}
+    actions:
+      - key: "otel-collector.include"
+        value: 1
+        action: insert
+  tail_sampling:
+    decision_wait: 1s
+    num_traces: 100
+    expected_new_traces_per_sec: 10
+    policies:
+      [
+          {
+            name: test-policy-3,
+            type: numeric_attribute,
+            numeric_attribute: {key: otel-collector.include, min_value: 1, max_value: 1}
+          },
+      ]
+  batch:
+
+service:
+  extensions: [pprof, zpages, health_check]
+  pipelines:
+    traces:
+      receivers: [otlp, jaeger]
+      processors: [attributes/exclude, tail_sampling, batch]
+      exporters: [logging, jaeger]
