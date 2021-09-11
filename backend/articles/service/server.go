@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"log"
 	"strconv"
+
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 
 	db "articles/database"
 	pb "protos/articles"
@@ -32,11 +33,13 @@ func (s *Server) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, e
 	_, span := tracer.Start(ctx, "Get")
 	defer span.End()
 
-	log.Printf("Received: %v", in)
+	logger := ctxzap.Extract(ctx).Sugar()
+
+	logger.Infof("Received: %v", in)
 	d := []byte("")
 	response := &pb.GetResponse{}
 	if err := proto.Unmarshal(d, response); err != nil {
-		log.Fatalln("Failed to unmarshal:", err)
+		logger.Error("Failed to unmarshal:", err)
 	}
 	return response, nil
 }
@@ -48,7 +51,9 @@ func (s *Server) GetArticles(
 	_, span := tracer.Start(ctx, "GetArticles")
 	defer span.End()
 
-	log.Printf("Received: %v", in)
+	logger := ctxzap.Extract(ctx).Sugar()
+
+	logger.Infof("Received: %v", in)
 	response := &pb.GetArticlesResponse{Articles: articles}
 	return response, nil
 }
@@ -57,7 +62,9 @@ func (s *Server) Post(ctx context.Context, in *pb.PostRequest) (*pb.PostResponse
 	_, span := tracer.Start(ctx, "Post")
 	defer span.End()
 
-	log.Printf("Received: %v", in)
+	logger := ctxzap.Extract(ctx).Sugar()
+
+	logger.Infof("Received: %v", in)
 	article := &pb.Article{
 		Id:      nextNumber(ctx),
 		Created: 0,
