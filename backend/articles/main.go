@@ -130,6 +130,7 @@ func addTraceFieldsIntoLogger(ctx context.Context, req interface{}, info *grpc.U
 		return nil, fmt.Errorf("metadata.FromIncomingContext() failed")
 	}
 	zap.L().Sugar().Debugf("metadata: %v\n", md)
+	fmt.Printf("traceparent=%s aa\n", getFirst(md, "traceparent"))
 	ctxzap.AddFields(
 		ctx,
 		zap.String("traceparent", getFirst(md, "traceparent")),

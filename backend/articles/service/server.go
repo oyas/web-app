@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
@@ -50,6 +51,8 @@ func (s *Server) GetArticles(
 ) (*pb.GetArticlesResponse, error) {
 	_, span := tracer.Start(ctx, "GetArticles")
 	defer span.End()
+
+	fmt.Printf("trace_id=%s\n", span.SpanContext().TraceID())
 
 	logger := ctxzap.Extract(ctx).Sugar()
 
