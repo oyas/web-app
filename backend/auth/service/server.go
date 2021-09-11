@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
-	"log"
 	"strconv"
 
 	"auth/auth"
 	db "auth/database"
 	pb "protos/auth"
+
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 )
 
 type Server struct {
@@ -15,24 +16,25 @@ type Server struct {
 }
 
 func (s *Server) Exchange(ctx context.Context, in *pb.ExchangeRequest) (*pb.ExchangeResponse, error) {
-	log.Printf("Received: %v", in)
+	logger := ctxzap.Extract(ctx).Sugar()
+	logger.Infof("Received: %v", in)
 
 	user, err := auth.UserFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("User: %v", user)
+	logger.Infof("User: %v", user)
 
 	num, err := db.Database.NextNumber(ctx)
 	if err != nil {
-		log.Printf("error: %v", err)
+		logger.Infof("error: %v", err)
 		return nil, err
 	}
 
 	userKey := "xxx" + strconv.Itoa(num)
 	newToken, err := auth.Sign(&auth.TokenData{Sub: userKey})
 	if err != nil {
-		log.Printf("sign error: %v", err)
+		logger.Infof("sign error: %v", err)
 		return nil, err
 	}
 

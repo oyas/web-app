@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
-	"log"
 	"os"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 )
 
 var redisOptions = &redis.Options{
@@ -29,7 +30,8 @@ func (r *Redis) Init() {
 }
 
 func (r *Redis) NextNumber(ctx context.Context) (int, error) {
+	logger := ctxzap.Extract(ctx).Sugar()
 	val, err := r.client.Incr(ctx, "number").Result()
-	log.Println(val)
+	logger.Info(val)
 	return int(val), err
 }

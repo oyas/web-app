@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"go.uber.org/zap"
 
 	"github.com/patrickmn/go-cache"
 )
@@ -34,6 +35,7 @@ const cacheKey = "key"
 const jwksUrl = "https://oyas.jp.auth0.com/.well-known/jwks.json"
 
 func Parse(ctx context.Context, tokenString string) (*jwt.Token, error) {
+	logger := zap.L().Sugar()
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
@@ -46,14 +48,14 @@ func Parse(ctx context.Context, tokenString string) (*jwt.Token, error) {
 		return GetValidationKey(ctx, token)
 	})
 	if err != nil {
-		fmt.Println(err)
+		logger.Warn(err)
 		return nil, err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims)
+		logger.Info(claims)
 	} else {
-		fmt.Println("Error, Can't cast to jwt.MapClaims.")
+		logger.Error("Can't cast to jwt.MapClaims.")
 	}
 
 	return token, err

@@ -112,7 +112,6 @@ func main() {
 			grpc_ctxtags.UnaryServerInterceptor(
 				grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor),
 			),
-			// grpc_ctxtags.UnaryServerInterceptor(),
 			grpc_zap.UnaryServerInterceptor(logger),
 			otelgrpc.UnaryServerInterceptor(),
 			addTraceFieldsIntoLogger,
@@ -133,8 +132,16 @@ func addTraceFieldsIntoLogger(ctx context.Context, req interface{}, info *grpc.U
 	zap.L().Sugar().Debugf("metadata: %v\n", md)
 	ctxzap.AddFields(
 		ctx,
-		zap.String("traceparent", md.Get("traceparent")[0]),
-		zap.String("tracestate", md.Get("tracestate")[0]),
+		zap.String("traceparent", getFirst(md, "traceparent")),
+		zap.String("tracestate", getFirst(md, "tracestate")),
 	)
 	return handler(ctx, req)
+}
+
+func getFirst(md metadata.MD, k string) string {
+	arr := md.Get(k)
+	if len(arr) > 0 {
+		return arr[0]
+	}
+	return ""
 }

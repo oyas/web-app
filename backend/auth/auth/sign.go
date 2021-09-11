@@ -3,11 +3,11 @@ package auth
 import (
 	"crypto/rsa"
 	"io/ioutil"
-	"log"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"go.uber.org/zap"
 )
 
 type TokenData struct {
@@ -16,20 +16,21 @@ type TokenData struct {
 }
 
 var privateKey = func() *rsa.PrivateKey {
+	logger := zap.L().Sugar()
 	var filepath string
 	if value, ok := os.LookupEnv("SIGNING_KEY_PATH"); ok {
 		filepath = value
 	} else {
 		filepath = "./keys/app.rsa"
 	}
-	log.Printf("Reading signing key from %v", filepath)
+	logger.Infof("Reading signing key from %v", filepath)
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		log.Fatalf("Error: can't read signing key: %v", err)
+		logger.Fatalf("Error: can't read signing key: %v", err)
 	}
 	key, err := jwt.ParseRSAPrivateKeyFromPEM(bytes)
 	if err != nil {
-		log.Fatalf("Error: can't read signing key: %v", err)
+		logger.Fatalf("Error: can't read signing key: %v", err)
 	}
 	return key
 }()

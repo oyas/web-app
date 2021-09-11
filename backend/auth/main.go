@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"os"
 
@@ -14,9 +13,14 @@ import (
 	"auth/trace"
 	pb "protos/auth"
 
-	"google.golang.org/grpc"
+	"go.uber.org/zap"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"google.golang.org/grpc"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc/codes"
@@ -43,12 +47,23 @@ func getEnv(key, fallback string) string {
 }
 
 func main() {
+	// init zap logger
+	logger, err := zap.NewProduction()
+	if err != nil {
+		panic(fmt.Errorf("can't initialize zap logger: %w", err))
+	}
+	defer logger.Sync() // flushes buffer, if any
+	log := logger.Sugar()
+
+	undo := zap.ReplaceGlobals(logger)
+	defer undo()
+
 	// init redis client
 	db.Database.Init()
 
 	// init openTelemetry
 	jaegerUrl := fmt.Sprintf("%s/api/traces", getEnv(APP_JAEGER_URL, "http://localhost:14268"))
-	log.Printf("jaegerUrl: %v\n", jaegerUrl)
+	log.Infof("jaegerUrl: %v\n", jaegerUrl)
 	tp, err := trace.Setup(jaegerUrl, ServiceName, Environment)
 	if err != nil {
 		log.Fatal(err)
@@ -68,24 +83,39 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer(
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+		grpc_middleware.WithUnaryServerChain(
+			grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+			grpc_zap.UnaryServerInterceptor(logger),
+			addTraceFieldsIntoLogger,
 			otelgrpc.UnaryServerInterceptor(),
-			showMD,
 			grpc_auth.UnaryServerInterceptor(auth.VerifyAccessToken),
-		)),
+		),
 	)
 	pb.RegisterAuthServer(s, &service.Server{})
-	log.Printf("Start server at port %v", port)
+	log.Infof("Start server at port %v", port)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
-func showMD(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func addTraceFieldsIntoLogger(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, errMissingMetadata
 	}
-	log.Printf("metadata: %v", md)
+	zap.L().Sugar().Infof("metadata: %v\n", md)
+	ctxzap.AddFields(
+		ctx,
+		zap.String("traceparent", getFirst(md, "traceparent")),
+		zap.String("tracestate", getFirst(md, "tracestate")),
+	)
 	return handler(ctx, req)
+}
+
+func getFirst(md metadata.MD, k string) string {
+	arr := md.Get(k)
+	if len(arr) > 0 {
+		return arr[0]
+	}
+	return ""
 }
