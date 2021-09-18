@@ -33,7 +33,7 @@ services:
     environment:
     - API_URL_ARTICLES=articles:50052
     - API_URL_AUTH=auth:50054
-    - APP_JAEGER_URL=http://jaeger:14268
+    - APP_JAEGER_URL=http://otel-collector:14268
   articles:
     build:
       context: backend
@@ -46,10 +46,10 @@ services:
     - "50052:50052"
     links:
     - redis-articles
-    - jaeger
+    - otel-collector
     environment:
     - APP_REDIS_URL=redis-articles:6379
-    - APP_JAEGER_URL=http://jaeger:14268
+    - APP_JAEGER_URL=http://otel-collector:14268
     # - JAEGER_AGENT_PORT=6831
   redis-articles:
     image: "redis:alpine"
@@ -65,10 +65,10 @@ services:
     - "50054:50054"
     links:
     - redis-auth
-    - jaeger
+    - otel-collector
     environment:
     - APP_REDIS_URL=redis-auth:6379
-    - APP_JAEGER_URL=http://jaeger:14268
+    - APP_JAEGER_URL=http://otel-collector:14268
     - SIGNING_KEY_PATH=/app/keys/app.rsa
     volumes:
     - ./backend/auth/keys:/app/keys
@@ -77,10 +77,25 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:1.22
     ports:
-    - "5775:5775"
-    - "6831:6831/udp"
-    - "6832:6832"
-    - "5778:5778"
+    # - "5775:5775"
+    # - "6831:6831/udp"
+    # - "6832:6832"
+    # - "5778:5778"
     - "16686:16686"
-    - "14268:14268"
+    # - "14268:14268"
     - "14250:14250"
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      # - "8888:8888"   # Prometheus metrics exposed by the collector
+      # - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317"        # OTLP gRPC receiver
+      - "55679:55679" # zpages extension
+      - "14268:14268" # jaeger grpc
+    depends_on:
+      - jaeger
