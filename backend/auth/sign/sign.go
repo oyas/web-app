@@ -1,13 +1,16 @@
-package auth
+package sign
 
 import (
+	"crypto/md5"
 	"crypto/rsa"
+	"encoding/base64"
 	"io/ioutil"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
+	"common/auth"
 )
 
 type TokenData struct {
@@ -35,13 +38,25 @@ var privateKey = func() *rsa.PrivateKey {
 	return key
 }()
 
+func GetPublicKey() *rsa.PublicKey {
+	return &privateKey.PublicKey
+}
+
+func GetKid() string {
+	sum := md5.Sum(privateKey.N.Bytes())
+	return base64.RawURLEncoding.EncodeToString(sum[:])
+}
+
 func Sign(data *TokenData) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
+		"aud":   auth.DefaultParser.Aud,
+		"iss":   auth.DefaultParser.Iss,
 		"sub":   data.Sub,
 		"scope": data.Scope,
-		"iat":   time.Now(),
+		"iat":   time.Now().Unix(),
 		"exp":   time.Now().Add(time.Minute * 10).Unix(),
 	})
+	token.Header["kid"] = GetKid()
 
 	return token.SignedString(privateKey)
 }

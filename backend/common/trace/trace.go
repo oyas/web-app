@@ -16,15 +16,12 @@ import (
 )
 
 func TracerProvider(url string, serviceName string, environment string) (*tracesdk.TracerProvider, error) {
-	// Create the Jaeger exporter
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
 	if err != nil {
 		return nil, err
 	}
 	tp := tracesdk.NewTracerProvider(
-		// Always be sure to batch in production.
 		tracesdk.WithBatcher(exp),
-		// Record information about this application in an Resource.
 		tracesdk.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
 			semconv.ServiceNameKey.String(serviceName),

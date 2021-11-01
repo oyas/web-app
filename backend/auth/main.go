@@ -6,26 +6,23 @@ import (
 	"net"
 	"os"
 
-	"auth/auth"
-	"auth/client"
 	db "auth/database"
+	jwksserver "auth/jwksServer"
 	"auth/service"
-	"auth/trace"
+	"common/auth"
+	"common/client"
+	"common/trace"
 	pb "protos/auth"
 
 	"go.uber.org/zap"
 
-	"google.golang.org/grpc"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	"google.golang.org/grpc"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -33,10 +30,6 @@ const (
 	ServiceName    = "auth"
 	Environment    = "dev"
 	APP_JAEGER_URL = "APP_JAEGER_URL"
-)
-
-var (
-	errMissingMetadata = status.Errorf(codes.InvalidArgument, "missing metadata")
 )
 
 func getEnv(key, fallback string) string {
@@ -77,6 +70,16 @@ func main() {
 	// init http client
 	client.Setup()
 
+	// init JWT parser
+	auth.SetParser(auth.Parser{
+		JwksUrl: "https://oyas.jp.auth0.com/.well-known/jwks.json",
+		Aud: "https://localhost:4000/graphql",
+		Iss: "https://oyas.jp.auth0.com/",
+	})
+
+	// start jwks server
+	go jwksserver.StartEchoServer()
+
 	// init grpc server
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
@@ -86,7 +89,7 @@ func main() {
 		grpc_middleware.WithUnaryServerChain(
 			grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
 			grpc_zap.UnaryServerInterceptor(logger),
-			addTraceFieldsIntoLogger,
+			trace.GrpcMiddlewareTraceFieldsIntoLogger,
 			otelgrpc.UnaryServerInterceptor(),
 			grpc_auth.UnaryServerInterceptor(auth.VerifyAccessToken),
 		),
@@ -96,26 +99,4 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-}
-
-func addTraceFieldsIntoLogger(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, errMissingMetadata
-	}
-	zap.L().Sugar().Infof("metadata: %v\n", md)
-	ctxzap.AddFields(
-		ctx,
-		zap.String("traceparent", getFirst(md, "traceparent")),
-		zap.String("tracestate", getFirst(md, "tracestate")),
-	)
-	return handler(ctx, req)
-}
-
-func getFirst(md metadata.MD, k string) string {
-	arr := md.Get(k)
-	if len(arr) > 0 {
-		return arr[0]
-	}
-	return ""
 }

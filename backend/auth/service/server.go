@@ -4,7 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	"auth/auth"
+	"auth/sign"
+	"common/auth"
 	db "auth/database"
 	pb "protos/auth"
 
@@ -32,7 +33,7 @@ func (s *Server) Exchange(ctx context.Context, in *pb.ExchangeRequest) (*pb.Exch
 	}
 
 	userKey := "xxx" + strconv.Itoa(num)
-	newToken, err := auth.Sign(&auth.TokenData{Sub: userKey})
+	newToken, err := sign.Sign(&sign.TokenData{Sub: userKey})
 	if err != nil {
 		logger.Infof("sign error: %v", err)
 		return nil, err

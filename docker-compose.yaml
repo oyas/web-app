@@ -63,6 +63,7 @@ services:
     image: oyas/web-app-auth:${IMAGE_TAG}
     ports:
     - "50054:50054"
+    - "3000:3000"
     links:
     - redis-auth
     - jaeger

@@ -22,7 +22,7 @@ type Server struct {
 var tracer = otel.Tracer("server")
 
 var articles = []*pb.Article{
-	&pb.Article{
+	{
 		Id:      "0",
 		Created: 0,
 		UserId:  "",

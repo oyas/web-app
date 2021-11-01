@@ -5,6 +5,7 @@ ARG SERVICE_NAME="greeter_server"
 RUN apk add --no-cache openssl bash ca-certificates && update-ca-certificates
 
 COPY ./protos /go/src/protos
+COPY ./common /go/src/common
 COPY ./${SERVICE_NAME} /go/src/${SERVICE_NAME}
 
 WORKDIR /go/src/${SERVICE_NAME}
