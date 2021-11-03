@@ -4,10 +4,10 @@ import (
 	"common/auth"
 	"common/client"
 	"common/trace"
+	"common/utils"
 	"context"
 	"fmt"
 	"net"
-	"os"
 
 	"go.uber.org/zap"
 
@@ -31,13 +31,6 @@ const (
 	APP_JAEGER_URL = "APP_JAEGER_URL"
 )
 
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
-}
-
 func main() {
 	// init zap logger
 	logger, err := zap.NewProduction()
@@ -54,7 +47,10 @@ func main() {
 	db.Database.Init()
 
 	// init openTelemetry
-	jaegerUrl := fmt.Sprintf("%s/api/traces", getEnv(APP_JAEGER_URL, "http://localhost:14268"))
+	jaegerUrl := fmt.Sprintf(
+		"%s/api/traces",
+		utils.GetEnv(APP_JAEGER_URL, "http://localhost:14268"),
+	)
 	log.Infof("jaegerUrl: %v\n", jaegerUrl)
 	tp, err := trace.Setup(jaegerUrl, ServiceName, Environment)
 	if err != nil {

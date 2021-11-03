@@ -5,12 +5,12 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"io/ioutil"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
 	"common/auth"
+	"common/utils"
 )
 
 type TokenData struct {
@@ -20,12 +20,7 @@ type TokenData struct {
 
 var privateKey = func() *rsa.PrivateKey {
 	logger := zap.L().Sugar()
-	var filepath string
-	if value, ok := os.LookupEnv("SIGNING_KEY_PATH"); ok {
-		filepath = value
-	} else {
-		filepath = "./keys/app.rsa"
-	}
+	filepath := utils.GetEnv("SIGNING_KEY_PATH", "./keys/app.rsa")
 	logger.Infof("Reading signing key from %v", filepath)
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
