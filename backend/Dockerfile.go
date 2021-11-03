@@ -1,6 +1,6 @@
-FROM golang:1.15.6-alpine as builder
+FROM golang:1.17.2-alpine as builder
 
-ARG SERVICE_NAME="greeter_server"
+ARG SERVICE_NAME="undefined"
 
 RUN apk add --no-cache openssl bash ca-certificates && update-ca-certificates
 
