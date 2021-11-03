@@ -2,15 +2,16 @@ package auth
 
 import (
 	"common/client"
+	"common/utils"
 	"context"
 	"crypto/rsa"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
 	"time"
-	"encoding/base64"
 
 	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
@@ -19,15 +20,15 @@ import (
 )
 
 type Parser struct {
-	JwksUrl string  // "https://oyas.jp.auth0.com/.well-known/jwks.json"
+	JwksUrl string // "https://oyas.jp.auth0.com/.well-known/jwks.json"
 	Aud     string
 	Iss     string
 }
 
 var DefaultParser Parser = Parser{
-	JwksUrl: "http://auth:3000/jwks.json",
-	Aud: "web-app",
-	Iss: "web-app",
+	JwksUrl: fmt.Sprintf("http://%s/jwks.json", utils.GetEnv("API_URL_JWKS", "localhost:3000")),
+	Aud:     "web-app",
+	Iss:     "web-app",
 }
 
 type Jwks struct {
@@ -95,7 +96,7 @@ func (p *Parser) getRSAPublicKey(ctx context.Context, token *jwt.Token) (*rsa.Pu
 
 	jwks, err := getJwks(ctx)
 	if err != nil {
-		logger.Info("can't get jwks: %v", err)
+		logger.Info("can't get jwks: ", err)
 		return nil, err
 	}
 
