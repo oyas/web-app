@@ -23,6 +23,17 @@ RSA_PATH=$MOUNT_DIR/$RSA_NAME
 #RSA_PUB_PATH=$MOUNT_DIR/$RSA_PUB_NAME
 #CERT_PATH=$MOUNT_DIR/$CERT_NAME
 
+# rotate
+if [[ -e $RSA_PATH ]]; then
+	for i in {0..100}; do
+		filename="$MOUNT_DIR/rsa-$i.pem"
+		if [[ ! -e $filename ]]; then
+			mv $RSA_PATH $filename
+			break
+		fi
+	done
+fi
+
 touch $RSA_NAME
 #touch $RSA_PUB_NAME
 
