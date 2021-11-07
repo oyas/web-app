@@ -69,8 +69,8 @@ func main() {
 	// init JWT parser
 	auth.SetParser(auth.Parser{
 		JwksUrl: "https://oyas.jp.auth0.com/.well-known/jwks.json",
-		Aud: "https://localhost:4000/graphql",
-		Iss: "https://oyas.jp.auth0.com/",
+		Aud:     "https://localhost:4000/graphql",
+		Iss:     "https://oyas.jp.auth0.com/",
 	})
 
 	// start jwks server

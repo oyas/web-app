@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	db "auth/database"
 	"auth/sign"
 	"common/auth"
-	db "auth/database"
 	pb "protos/auth"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"

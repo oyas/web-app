@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-export SIGNING_KEY_PATH="$(pwd)/keys/app.rsa"
+export SIGNING_KEY_PATH="$(pwd)/keys/rsa.pem"
 
 if [[ ! -e $SIGNING_KEY_PATH ]]; then
 	bash ./keys/generate.sh

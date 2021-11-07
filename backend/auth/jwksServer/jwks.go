@@ -24,20 +24,21 @@ func StartEchoServer() {
 }
 
 func makeJwks() auth.Jwks {
-	publicKey := sign.GetPublicKey()
-	n := base64.RawURLEncoding.EncodeToString(publicKey.N.Bytes())
-	e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(publicKey.E)).Bytes())
-	return auth.Jwks{
-		Keys: []auth.JSONWebKeys{
-			{
-				Kty: "RSA",
-				Alg: "RS256",
-				Kid: sign.GetKid(),
-				Use: "sig",
-				N:   n,
-				E:   e,
-				X5c: nil,
-			},
-		},
+	publicKeys := sign.GetPublicKeys()
+	jwks := auth.Jwks{}
+	for kid, publicKey := range publicKeys {
+		n := base64.RawURLEncoding.EncodeToString(publicKey.N.Bytes())
+		e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(publicKey.E)).Bytes())
+		jwk := auth.JSONWebKeys{
+			Kty: "RSA",
+			Alg: "RS256",
+			Kid: kid,
+			Use: "sig",
+			N:   n,
+			E:   e,
+			X5c: nil,
+		}
+		jwks.Keys = append(jwks.Keys, jwk)
 	}
+	return jwks
 }
