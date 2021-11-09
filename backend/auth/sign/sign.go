@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"common/auth"
+	"common/log"
 	"common/utils"
 
 	"github.com/golang-jwt/jwt/v4"
-	"go.uber.org/zap"
 )
 
 type TokenData struct {
@@ -22,7 +22,11 @@ type TokenData struct {
 
 var privateKey = func() *rsa.PrivateKey {
 	filepath := utils.GetEnv("SIGNING_KEY_PATH", "./keys/rsa.pem")
-	return readPrivateKey(filepath)
+	key, err := readPrivateKey(filepath)
+	if err != nil {
+		log.Panicf("can't read signing key: %v", err)
+	}
+	return key
 }()
 
 var kid = getKid(privateKey)
@@ -31,29 +35,31 @@ var privateKeys = func() map[string]*rsa.PrivateKey {
 	pattern := utils.GetEnv("SIGNING_KEY_DIR", "./keys") + "/*.pem"
 	files, err := filepath.Glob(pattern)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 	keys := map[string]*rsa.PrivateKey{}
 	for _, file := range files {
-		key := readPrivateKey(file)
+		key, err := readPrivateKey(file)
+		if err != nil {
+			log.Panicf("can't read signing key: %v", err)
+		}
 		keys[getKid(key)] = key
 	}
 	keys[getKid(privateKey)] = privateKey
 	return keys
 }()
 
-func readPrivateKey(filepath string) *rsa.PrivateKey {
-	logger := zap.L().Sugar()
-	logger.Infof("Reading signing key from %v", filepath)
+func readPrivateKey(filepath string) (*rsa.PrivateKey, error) {
+	log.Infof("Reading signing key from %v", filepath)
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		logger.Fatalf("Error: can't read signing key: %v", err)
+		return nil, err
 	}
 	key, err := jwt.ParseRSAPrivateKeyFromPEM(bytes)
 	if err != nil {
-		logger.Fatalf("Error: can't read signing key: %v", err)
+		return nil, err
 	}
-	return key
+	return key, nil
 }
 
 func GetPublicKeys() map[string]*rsa.PublicKey {

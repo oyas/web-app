@@ -9,12 +9,12 @@ import (
 	jwksserver "auth/jwksServer"
 	"auth/service"
 	"common/auth"
+	"common/log"
 	"common/client"
 	"common/trace"
 	"common/utils"
 	pb "protos/auth"
 
-	"go.uber.org/zap"
 
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -34,15 +34,7 @@ const (
 
 func main() {
 	// init zap logger
-	logger, err := zap.NewProduction()
-	if err != nil {
-		panic(fmt.Errorf("can't initialize zap logger: %w", err))
-	}
-	defer logger.Sync() // flushes buffer, if any
-	log := logger.Sugar()
-
-	undo := zap.ReplaceGlobals(logger)
-	defer undo()
+	defer log.Shutdown()
 
 	// init redis client
 	db.Database.Init()
@@ -79,12 +71,12 @@ func main() {
 	// init grpc server
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Panicf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer(
 		grpc_middleware.WithUnaryServerChain(
 			grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
-			grpc_zap.UnaryServerInterceptor(logger),
+			grpc_zap.UnaryServerInterceptor(log.L()),
 			trace.GrpcMiddlewareTraceFieldsIntoLogger,
 			otelgrpc.UnaryServerInterceptor(),
 			grpc_auth.UnaryServerInterceptor(auth.VerifyAccessToken),
@@ -93,6 +85,6 @@ func main() {
 	pb.RegisterAuthServer(s, &service.Server{})
 	log.Infof("Start server at port %v", port)
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Panicf("failed to serve: %v", err)
 	}
 }
